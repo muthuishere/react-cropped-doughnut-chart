@@ -55,8 +55,8 @@ function createTextElement(textId, { label, labelSize, labelColor }) {
   ])
   const textPathElement = createElement('textPath', [
     ['href', '#' + textId],
-    ['text-anchor', 'top'],
-    ['startOffset', '0%']
+    ['text-anchor', 'middle'],
+    ['startOffset', '50%']
   ])
 
   // 180 degree reverses stuff

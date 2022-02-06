@@ -53,14 +53,34 @@ export function drawingCoordinatesBetweenInnerAndOuterCircle(
   { x, y }
 ) {
   const middleRadius = innerRadius + (outerRadius - innerRadius) / 2
-  const middleAngle = startAngle + (endAngle - startAngle) / 2
-  const drawingCoordinatesForText = drawingCoordinatesinCircle(
+
+  const drawingCoordinatesForText = drawingCoordinatesForTextPosition(
     { x, y },
     {
       startAngle,
-      endAngle: middleAngle
+      endAngle: endAngle
     },
     middleRadius
   )
   return drawingCoordinatesForText
+}
+
+
+export function drawingCoordinatesForTextPosition(
+  { x, y },
+  { startAngle, endAngle },
+  radius
+) {
+  const startPoint = polarToCartesian(x, y, radius, startAngle)
+  const endPoint = polarToCartesian(x, y, radius, endAngle)
+
+  const arcSweep = endAngle - startAngle <= 180 ? '0' : '1'
+
+  const d = [
+    'M',    endPoint.x,    endPoint.y,
+    'A',    radius,    radius,    0,    arcSweep,    0,    startPoint.x,    startPoint.y
+
+  ].join(' ')
+
+  return d
 }

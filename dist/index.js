@@ -47,15 +47,25 @@ function drawingCoordinatesBetweenInnerAndOuterCircle(_ref3, _ref4, _ref5) {
   var x = _ref5.x,
       y = _ref5.y;
   var middleRadius = innerRadius + (outerRadius - innerRadius) / 2;
-  var middleAngle = startAngle + (endAngle - startAngle) / 2;
-  var drawingCoordinatesForText = drawingCoordinatesinCircle({
+  var drawingCoordinatesForText = drawingCoordinatesForTextPosition({
     x: x,
     y: y
   }, {
     startAngle: startAngle,
-    endAngle: middleAngle
+    endAngle: endAngle
   }, middleRadius);
   return drawingCoordinatesForText;
+}
+function drawingCoordinatesForTextPosition(_ref6, _ref7, radius) {
+  var x = _ref6.x,
+      y = _ref6.y;
+  var startAngle = _ref7.startAngle,
+      endAngle = _ref7.endAngle;
+  var startPoint = polarToCartesian(x, y, radius, startAngle);
+  var endPoint = polarToCartesian(x, y, radius, endAngle);
+  var arcSweep = endAngle - startAngle <= 180 ? '0' : '1';
+  var d = ['M', endPoint.x, endPoint.y, 'A', radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(' ');
+  return d;
 }
 
 var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
@@ -212,7 +222,7 @@ function createTextElement(textId, _ref) {
       labelSize = _ref.labelSize,
       labelColor = _ref.labelColor;
   var textElement = createElement('text', [['font-size', labelSize + 'px'], ['fill', labelColor], ['rotate', '180']]);
-  var textPathElement = createElement('textPath', [['href', '#' + textId], ['text-anchor', 'top'], ['startOffset', '0%']]);
+  var textPathElement = createElement('textPath', [['href', '#' + textId], ['text-anchor', 'middle'], ['startOffset', '50%']]);
   textPathElement.innerHTML = reverseString(label);
   textElement.appendChild(textPathElement);
   return textElement;

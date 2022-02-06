@@ -222,7 +222,7 @@ function createTextElement(textId, {
   labelColor
 }) {
   const textElement = (0, _elements.createElement)('text', [['font-size', labelSize + 'px'], ['fill', labelColor], ['rotate', '180']]);
-  const textPathElement = (0, _elements.createElement)('textPath', [['href', '#' + textId], ['text-anchor', 'top'], ['startOffset', '0%']]); // 180 degree reverses stuff
+  const textPathElement = (0, _elements.createElement)('textPath', [['href', '#' + textId], ['text-anchor', 'middle'], ['startOffset', '50%']]); // 180 degree reverses stuff
 
   textPathElement.innerHTML = (0, _formatter.reverseString)(label);
   textElement.appendChild(textPathElement);
@@ -300,6 +300,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.drawingCoordinatesBetweenInnerAndOuterCircle = drawingCoordinatesBetweenInnerAndOuterCircle;
+exports.drawingCoordinatesForTextPosition = drawingCoordinatesForTextPosition;
 exports.drawingCoordinatesinCircle = drawingCoordinatesinCircle;
 exports.polarToCartesian = polarToCartesian;
 
@@ -357,15 +358,28 @@ function drawingCoordinatesBetweenInnerAndOuterCircle({
   y
 }) {
   const middleRadius = innerRadius + (outerRadius - innerRadius) / 2;
-  const middleAngle = startAngle + (endAngle - startAngle) / 2;
-  const drawingCoordinatesForText = drawingCoordinatesinCircle({
+  const drawingCoordinatesForText = drawingCoordinatesForTextPosition({
     x,
     y
   }, {
     startAngle,
-    endAngle: middleAngle
+    endAngle: endAngle
   }, middleRadius);
   return drawingCoordinatesForText;
+}
+
+function drawingCoordinatesForTextPosition({
+  x,
+  y
+}, {
+  startAngle,
+  endAngle
+}, radius) {
+  const startPoint = polarToCartesian(x, y, radius, startAngle);
+  const endPoint = polarToCartesian(x, y, radius, endAngle);
+  const arcSweep = endAngle - startAngle <= 180 ? '0' : '1';
+  const d = ['M', endPoint.x, endPoint.y, 'A', radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(' ');
+  return d;
 }
 
 },{}],5:[function(require,module,exports){

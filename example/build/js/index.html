@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>react-cropped-doughnut-chart</title>
+
+  </head>
+
+  <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+
+    <div id="root"></div>
+
+    <script src="./cropped-doughnut-chart.js"></script>
+
+  <script>
+
+    function initChart(){
+      const croppedDoughnutChartBuilder = CroppedDoughnutChart.DoughnutElement
+
+      const items2 =[
+        { value:124,color:"red"},
+        { value:27,color:"blue"},
+        { value:149,color:"pink",labelColor:"black"},
+      ]
+      let options = {
+        radius: 100,
+        title:"Halo",
+        titleColor:"#FF0000",
+        thicknessSize:"M",
+        gapSize:"XL",
+        labelSize:12,
+        labelColor:"white",
+        backgroundColor:"white",
+        imgUrl:"https://www.w3schools.com/html/pic_trulli.jpg" };
+
+
+      const chart = croppedDoughnutChartBuilder(items2,options);
+      document.getElementById("root").appendChild(chart);
+    }
+
+
+    initChart()
+
+
+  </script>
+  </body>
+</html>

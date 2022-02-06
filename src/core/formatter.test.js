@@ -1,4 +1,4 @@
-import { formatItems, formatToArrayOfObjects } from "./formatter";
+import { formatItems, formatLabelColor, formatToArrayOfObjects } from "./formatter";
 
 describe('formatItems Specification', function () {
   test('formatItems should work fine for calculating percentage', function () {
@@ -13,7 +13,7 @@ describe('formatItems Specification', function () {
       }
     ]
     allTests.forEach(({ input, expected }) => {
-      const result = formatItems(input).map(({ percentage }) => percentage)
+      const result = formatItems(input, "white").map(({ percentage }) => percentage)
       expect(result).toEqual(expected)
     })
   })
@@ -30,7 +30,7 @@ describe('formatItems Specification', function () {
       }
     ]
     allTests.forEach(({ input, expected }) => {
-      const result = formatItems(input).map(({ label }) => label)
+      const result = formatItems(input, "white").map(({ label }) => label)
       expect(result).toEqual(expected)
     })
   })
@@ -48,7 +48,27 @@ describe('formatItems Specification', function () {
     ]
 
     allTests.forEach(({ input, expected }) => {
-      const result = formatItems(input).map(({ color }) => color)
+      const result = formatItems(input, "white").map(({ color }) => color)
+      expect(result).toEqual(expected)
+    })
+  })
+  test('formatItems should work fine for labelColor or set DefaultColor', function () {
+    const defaultLabelColor = 'white'
+    const allTests = [
+      {
+        input: [
+          { label: '23', value: 50 , color: 'blue',labelColor:'red'},
+          { label: '25', value: 100, color: 'blue' },
+          { value: 50 }
+        ],
+        expected: ['red', 'white', 'white']
+      }
+    ]
+
+    allTests.forEach(({ input, expected }) => {
+      const result = formatItems(input, defaultLabelColor).map(
+        ({ labelColor }) => labelColor
+      )
       expect(result).toEqual(expected)
     })
   })
@@ -62,7 +82,7 @@ describe('formatItems Specification', function () {
     ]
 
     allTests.forEach(({ input, expected }) => {
-      const result = formatItems(input).map(({ value }) => value)
+      const result = formatItems(input, "white").map(({ value }) => value)
       expect(result).toEqual(expected)
     })
   })
@@ -71,7 +91,7 @@ describe('formatItems Specification', function () {
     const input = [{"m":23},{"m":45},{"m":54}]
 
     const t = () => {
-      formatItems(input)
+      formatItems(input, "white")
     };
     expect(t).toThrow(Error);
 

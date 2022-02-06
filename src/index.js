@@ -1,48 +1,28 @@
-import React, { useEffect, useState } from "react";
-import styles from './styles.module.css'
+import React, { useEffect, useRef, useState } from "react";
 import { DoughnutElement } from "./core/DoughnutElement";
 
-export const CroppedDoughnutChart = ({ text }) => {
+export const CroppedDoughnutChart = ({ items,options }) => {
 
 
-  const [state, setState] = useState("");
+  const svg = useRef(null);
+
 
   useEffect(() => {
 
 
 
-    const items =[
-      { value:24,color:"red"},
-      { value:227,color:"blue"},
-      { value:49,color:"pink"},
-    ]
 
-    //const items =[98,78,56]
+    const result= DoughnutElement(items,options )
 
-
-    let imgUrl = "https://www.w3schools.com/html/pic_trulli.jpg";
-    // <svg id="root">
-    // </svg>
-   const result= DoughnutElement(items,{
-     radius: 100,
-     width: 200,
-     title:"Halo",
-     titleColor:"#FF0000",
-     thicknessSize:"M",
-     gapSize:"XL",
-     labelSize:12,
-     labelColor:"white",
-     backgroundColor:"white",
-     imgUrl
-
-   } )
-    setState(result);
-
+    if(svg.current){
+      svg.current.appendChild(result)
+    }
 
 
   }, [])
 
-  return   <div dangerouslySetInnerHTML={{ __html: state }} />
+  // return   <div dangerouslySetInnerHTML={{ __html: state }} />
+  return   <div ref={svg}/>
 
 
 }

@@ -39,7 +39,7 @@ export function formatToArrayOfObjects(inputItems) {
 export function reverseString(str) {
   return str.split("").reverse().join("");
 }
-export function formatItems(inputItems) {
+export function formatItems(inputItems, defaultLabelColor) {
   const items = formatToArrayOfObjects(inputItems)
 
   const hasValueProperty = (currentValue) => null != currentValue.value
@@ -49,6 +49,8 @@ export function formatItems(inputItems) {
   }
 
 
+  const formatLabelColorWithDefault =(item)=>formatLabelColor(item, defaultLabelColor)
+
   const total = items.reduce((acc, item) => acc + item.value, 0)
   return items
     .map((item) => ({
@@ -57,4 +59,14 @@ export function formatItems(inputItems) {
     }))
     .map(formatLabel)
     .map(formatColor)
+    .map(formatLabelColorWithDefault)
 }
+ function formatLabelColor(item,defaultLabelColor) {
+
+  return {
+      ...{labelColor:defaultLabelColor},
+      ...item
+    }
+
+}
+

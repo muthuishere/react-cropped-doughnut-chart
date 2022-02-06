@@ -38,23 +38,10 @@ export function drawingCoordinatesinCircle(
   const arcSweep = endAngle - startAngle <= 180 ? '0' : '1'
 
   const d = [
-    'M',
-    endPoint.x,
-    endPoint.y,
-    'A',
-    radius,
-    radius,
-    0,
-    arcSweep,
-    0,
-    startPoint.x,
-    startPoint.y,
-    'L',
-    x,
-    y,
-    'L',
-    endPoint.x,
-    endPoint.y
+    'M',    endPoint.x,    endPoint.y,
+    'A',    radius,    radius,    0,    arcSweep,    0,    startPoint.x,    startPoint.y,
+    'L',    x,    y,
+    'L',    endPoint.x,    endPoint.y
   ].join(' ')
 
   return d

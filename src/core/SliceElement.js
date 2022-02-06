@@ -1,28 +1,32 @@
-import { createElement, setAttributeForSvg } from './elements'
+import { createElement } from './elements'
 import {
-  drawingCoordinatesBetweenInnerAndOuterCircle,
-  drawingCoordinatesinCircle
-} from './calculations'
-import { reverseString } from "./formatter";
+  drawingCoordinatesBetweenInnerAndOuterCircle
 
-function createArc({ x, y }, { startAngle, endAngle }, outerRadius, color) {
-  const chartPath = createElement('path', [
+} from './calculations'
+import { reverseString } from './formatter'
+import { createArc } from './elementCreator'
+function createArcForSlice(point, angles, radius, color) {
+  const containerAttributes = [
     ['fill', color],
+    ['stroke', 'none'],
     ['class', 'path-container'],
     ['stroke-width', '0']
-  ])
+  ]
+  const arc = createArc(containerAttributes, point, angles, radius);
+  const animateElement = createElement('animate', [
+    ['attributeName', 'fill'],
+    ['attributeType', 'XML'],
+    ['from', 'black'],
+    ['to', color],
+    ['dur', '2s'],
+    ['repeatCount', '1']
 
-  const chartPositionData = drawingCoordinatesinCircle(
-    { x, y },
-    { startAngle, endAngle },
-    outerRadius
-  )
 
-  // identify center between start and end angle
-  // set label position,and use it
-
-  setAttributeForSvg(chartPath, 'd', chartPositionData)
-  return chartPath
+  ]);
+  // <animateColor attributeName="fill" attributeType="XML"
+  //               from="black" to="red" dur="6s" repeatCount="indefinite"/>
+  arc.appendChild(animateElement);
+  return arc
 }
 
 function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
@@ -43,7 +47,7 @@ function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
   return textPathDefinitionElement
 }
 
-function createTextElement(textId,{label,labelSize,labelColor}) {
+function createTextElement(textId, { label, labelSize, labelColor }) {
   const textElement = createElement('text', [
     ['font-size', labelSize + 'px'],
     ['fill', labelColor],
@@ -55,13 +59,19 @@ function createTextElement(textId,{label,labelSize,labelColor}) {
     ['startOffset', '0%']
   ])
 
-  //180 degree reverses stuff
-  textPathElement.innerHTML =reverseString(label)
+  // 180 degree reverses stuff
+  textPathElement.innerHTML = reverseString(label)
   textElement.appendChild(textPathElement)
   return textElement
 }
 
-function getTextElements(id, {label,labelSize,labelColor}, innerAndOuterRadius, angles, point) {
+function getTextElements(
+  id,
+  { label, labelSize, labelColor },
+  innerAndOuterRadius,
+  angles,
+  point
+) {
   const textId = 'text' + id
   const textPositionPathElement = createTextDefinition(
     textId,
@@ -69,7 +79,11 @@ function getTextElements(id, {label,labelSize,labelColor}, innerAndOuterRadius, 
     angles,
     point
   )
-  const textElement = createTextElement(textId, {label,labelSize,labelColor})
+  const textElement = createTextElement(textId, {
+    label,
+    labelSize,
+    labelColor
+  })
 
   return {
     textPositionPathElement,
@@ -90,10 +104,10 @@ export function getRandomSixDigitString() {
 
 export function getSliceElement(
   angles,
-  { label, value, color },
+  { label, value, color,labelColor },
   point,
   { innerRadius, outerRadius },
-  {labelSize,labelColor}
+  { labelSize }
 ) {
   const id = 'box' + value + getRandomSixDigitString()
   const container = createElement('a', [
@@ -101,18 +115,25 @@ export function getSliceElement(
     ['href', '#'],
     ['style', 'text-decoration: none;']
   ])
-  const arc = createArc(point, angles, outerRadius, color)
+
+    //<title>I'm a circle</title>
+  const titleElement = createElement('title', [])
+  titleElement.innerHTML = label;
+
+  container.appendChild(titleElement)
+  const arc = createArcForSlice(point, angles, outerRadius, color)
 
   container.appendChild(arc)
   const { textPositionPathElement, textElement } = getTextElements(
     id,
-    {label,labelSize,labelColor},
+    { label, labelSize, labelColor },
     { innerRadius, outerRadius },
     angles,
     point
   )
   container.appendChild(textPositionPathElement)
-  container.appendChild(textElement)
+  container.appendChild(textElement);
+
 
   return container
 }

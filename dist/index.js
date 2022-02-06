@@ -3,28 +3,22 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var React = require('react');
 var React__default = _interopDefault(React);
 
-var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-function createElement(name, attribs) {
-  var xmlns = SVG_NAMESPACE;
-  var svgElem = document.createElementNS(xmlns, name);
-  attribs.forEach(function (_ref) {
-    var name = _ref[0],
-        value = _ref[1];
-    return svgElem.setAttributeNS(null, name, value);
-  });
-  return svgElem;
-}
-function createHtmlElement(name, attribs) {
-  var element = document.createElement(name);
-  attribs.forEach(function (_ref2) {
-    var name = _ref2[0],
-        value = _ref2[1];
-    return element.setAttribute(name, value);
-  });
-  return element;
-}
-function setAttributeForSvg(element, name, value) {
-  element.setAttributeNS(null, name, value);
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
 }
 
 function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
@@ -64,6 +58,39 @@ function drawingCoordinatesBetweenInnerAndOuterCircle(_ref3, _ref4, _ref5) {
   return drawingCoordinatesForText;
 }
 
+var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+function createElement(name, attribs) {
+  var xmlns = SVG_NAMESPACE;
+  var svgElem = document.createElementNS(xmlns, name);
+  attribs.forEach(function (_ref) {
+    var name = _ref[0],
+        value = _ref[1];
+    return svgElem.setAttributeNS(null, name, value);
+  });
+  return svgElem;
+}
+function createHtmlElement(name, attribs) {
+  var element = document.createElement(name);
+  attribs.forEach(function (_ref2) {
+    var name = _ref2[0],
+        value = _ref2[1];
+    return element.setAttribute(name, value);
+  });
+  return element;
+}
+function insertStyles() {
+  if (document.head.querySelector("#doughnut-cropped-chart-styles")) {
+    return;
+  }
+
+  var styles = "\n        a:hover .path-container {\n            opacity: 0.5;\n            transition: all ease 0.3s;\n        }\n        a .path-container {\n            opacity: 1.0;\n            transition: all ease 0.3s;\n        }\n";
+  var styleSheet = document.createElement('style');
+  styleSheet.setAttribute('type', 'text/css');
+  styleSheet.setAttribute('id', 'doughnut-cropped-chart-styles');
+  styleSheet.innerHTML = styles;
+  document.head.appendChild(styleSheet);
+}
+
 var PADDING_RATIO = 0.8;
 function getHtmlContainerElement(_ref, radius, imgUrl, title, textColor) {
   var x = _ref.x,
@@ -84,24 +111,6 @@ function getHtmlContainerElement(_ref, radius, imgUrl, title, textColor) {
   var foreignObject = createElement('foreignObject', [['x', paddedX], ['y', paddedY], ['width', width], ['height', height]]);
   foreignObject.appendChild(container);
   return foreignObject;
-}
-
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
 }
 
 var colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#8B00FF'];
@@ -141,7 +150,7 @@ function formatToArrayOfObjects(inputItems) {
 function reverseString(str) {
   return str.split("").reverse().join("");
 }
-function formatItems(inputItems) {
+function formatItems(inputItems, defaultLabelColor) {
   var items = formatToArrayOfObjects(inputItems);
 
   var hasValueProperty = function hasValueProperty(currentValue) {
@@ -154,6 +163,10 @@ function formatItems(inputItems) {
     throw new Error('Invalid Data Found, All items must have a value property');
   }
 
+  var formatLabelColorWithDefault = function formatLabelColorWithDefault(item) {
+    return formatLabelColor(item, defaultLabelColor);
+  };
+
   var total = items.reduce(function (acc, item) {
     return acc + item.value;
   }, 0);
@@ -161,24 +174,28 @@ function formatItems(inputItems) {
     return _extends({}, item, {
       percentage: item.value / total * 100
     });
-  }).map(formatLabel).map(formatColor);
+  }).map(formatLabel).map(formatColor).map(formatLabelColorWithDefault);
 }
 
-function createArc(_ref, _ref2, outerRadius, color) {
-  var x = _ref.x,
-      y = _ref.y;
-  var startAngle = _ref2.startAngle,
-      endAngle = _ref2.endAngle;
-  var chartPath = createElement('path', [['fill', color], ['class', 'path-container'], ['stroke-width', '0']]);
-  var chartPositionData = drawingCoordinatesinCircle({
-    x: x,
-    y: y
-  }, {
-    startAngle: startAngle,
-    endAngle: endAngle
-  }, outerRadius);
-  setAttributeForSvg(chartPath, 'd', chartPositionData);
-  return chartPath;
+function formatLabelColor(item, defaultLabelColor) {
+  return _extends({}, {
+    labelColor: defaultLabelColor
+  }, item);
+}
+
+function createArc(containerAttributes, point, angles, radius) {
+  var innerArc = createElement("path", containerAttributes);
+  var innerArcData = drawingCoordinatesinCircle(point, angles, radius);
+  innerArc.setAttributeNS(null, "d", innerArcData);
+  return innerArc;
+}
+
+function createArcForSlice(point, angles, radius, color) {
+  var containerAttributes = [['fill', color], ['stroke', 'none'], ['class', 'path-container'], ['stroke-width', '0']];
+  var arc = createArc(containerAttributes, point, angles, radius);
+  var animateElement = createElement('animate', [['attributeName', 'fill'], ['attributeType', 'XML'], ['from', 'black'], ['to', color], ['dur', '2s'], ['repeatCount', '1']]);
+  arc.appendChild(animateElement);
+  return arc;
 }
 
 function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
@@ -190,10 +207,10 @@ function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
   return textPathDefinitionElement;
 }
 
-function createTextElement(textId, _ref3) {
-  var label = _ref3.label,
-      labelSize = _ref3.labelSize,
-      labelColor = _ref3.labelColor;
+function createTextElement(textId, _ref) {
+  var label = _ref.label,
+      labelSize = _ref.labelSize,
+      labelColor = _ref.labelColor;
   var textElement = createElement('text', [['font-size', labelSize + 'px'], ['fill', labelColor], ['rotate', '180']]);
   var textPathElement = createElement('textPath', [['href', '#' + textId], ['text-anchor', 'top'], ['startOffset', '0%']]);
   textPathElement.innerHTML = reverseString(label);
@@ -201,10 +218,10 @@ function createTextElement(textId, _ref3) {
   return textElement;
 }
 
-function getTextElements(id, _ref4, innerAndOuterRadius, angles, point) {
-  var label = _ref4.label,
-      labelSize = _ref4.labelSize,
-      labelColor = _ref4.labelColor;
+function getTextElements(id, _ref2, innerAndOuterRadius, angles, point) {
+  var label = _ref2.label,
+      labelSize = _ref2.labelSize,
+      labelColor = _ref2.labelColor;
   var textId = 'text' + id;
   var textPositionPathElement = createTextDefinition(textId, innerAndOuterRadius, angles, point);
   var textElement = createTextElement(textId, {
@@ -222,17 +239,20 @@ function getRandomSixDigitString() {
   var str = '' + Math.floor(Math.random() * (999999 - 1)) + 1;
   return str.padStart(6, '0');
 }
-function getSliceElement(angles, _ref5, point, _ref6, _ref7) {
-  var label = _ref5.label,
-      value = _ref5.value,
-      color = _ref5.color;
-  var innerRadius = _ref6.innerRadius,
-      outerRadius = _ref6.outerRadius;
-  var labelSize = _ref7.labelSize,
-      labelColor = _ref7.labelColor;
+function getSliceElement(angles, _ref3, point, _ref4, _ref5) {
+  var label = _ref3.label,
+      value = _ref3.value,
+      color = _ref3.color,
+      labelColor = _ref3.labelColor;
+  var innerRadius = _ref4.innerRadius,
+      outerRadius = _ref4.outerRadius;
+  var labelSize = _ref5.labelSize;
   var id = 'box' + value + getRandomSixDigitString();
   var container = createElement('a', [['id', 'container' + id], ['href', '#'], ['style', 'text-decoration: none;']]);
-  var arc = createArc(point, angles, outerRadius, color);
+  var titleElement = createElement('title', []);
+  titleElement.innerHTML = label;
+  container.appendChild(titleElement);
+  var arc = createArcForSlice(point, angles, outerRadius, color);
   container.appendChild(arc);
 
   var _getTextElements = getTextElements(id, {
@@ -251,11 +271,9 @@ function getSliceElement(angles, _ref5, point, _ref6, _ref7) {
   return container;
 }
 
-function createArcFrom(point, angles, radius) {
-  var innerArc = createElement('path', []);
-  var innerArcData = drawingCoordinatesinCircle(point, angles, radius);
-  innerArc.setAttributeNS(null, 'd', innerArcData);
-  return innerArc;
+function createArcForOverAllContainer(className, point, angles, radius) {
+  var containerAttributes = [['fill', 'none'], ['stroke', 'none'], ['class', className], ['stroke-width', '0']];
+  return createArc(containerAttributes, point, angles, radius);
 }
 
 var thicknessWithRatio = {
@@ -279,16 +297,31 @@ function getCircle(_ref, radius, defaultcolor) {
   return createElement('circle', [['cx', x], ['cy', y], ['r', radius], ['fill', defaultcolor]]);
 }
 
-function DoughnutElement(items, _ref2) {
-  var radius = _ref2.radius,
-      title = _ref2.title,
-      thicknessSize = _ref2.thicknessSize,
-      gapSize = _ref2.gapSize,
-      backgroundColor = _ref2.backgroundColor,
-      imgUrl = _ref2.imgUrl,
-      titleColor = _ref2.titleColor,
-      labelSize = _ref2.labelSize,
-      labelColor = _ref2.labelColor;
+function DoughnutElement(items, options) {
+  insertStyles();
+  var defaultOptions = {
+    radius: 100,
+    title: '',
+    titleColor: '#FF0000',
+    thicknessSize: 'M',
+    gapSize: 'XL',
+    labelSize: 12,
+    labelColor: 'white',
+    backgroundColor: 'white',
+    imgUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+  };
+
+  var formattedOptions = _extends({}, defaultOptions, options);
+
+  var radius = formattedOptions.radius,
+      title = formattedOptions.title,
+      thicknessSize = formattedOptions.thicknessSize,
+      gapSize = formattedOptions.gapSize,
+      backgroundColor = formattedOptions.backgroundColor,
+      imgUrl = formattedOptions.imgUrl,
+      titleColor = formattedOptions.titleColor,
+      labelSize = formattedOptions.labelSize,
+      labelColor = formattedOptions.labelColor;
   var thicknessOfCircle = thicknessWithRatio[thicknessSize];
   var totalSize = (radius + thicknessOfCircle) * 2;
   var x = totalSize / 2;
@@ -304,14 +337,14 @@ function DoughnutElement(items, _ref2) {
   };
 
   var container = createElement('g', []);
-  var innerArc = createArcFrom({
+  var innerArc = createArcForOverAllContainer('overall-inner-container', {
     x: x,
     y: y
   }, {
     startAngle: startAngle,
     endAngle: endAngle
   }, radius);
-  var outerArc = createArcFrom({
+  var outerArc = createArcForOverAllContainer('overall-outer-container', {
     x: x,
     y: y
   }, {
@@ -321,24 +354,14 @@ function DoughnutElement(items, _ref2) {
   container.appendChild(outerArc);
   container.appendChild(innerArc);
   var initAngle = startAngle;
-  var formattedItems = formatItems(items);
+  var formattedItems = formatItems(items, labelColor);
   formattedItems.forEach(function (item, index) {
-    var label = item.label,
-        value = item.value,
-        color = item.color,
-        percentage = item.percentage;
-    console.log(label);
-    console.log(color);
-    console.log(value);
+    var percentage = item.percentage;
     var endAngle = initAngle + percentageToDegree(percentage);
     var currentBoxElement = getSliceElement({
       startAngle: initAngle,
       endAngle: endAngle
-    }, {
-      label: label,
-      value: value,
-      color: color
-    }, {
+    }, item, {
       x: x,
       y: y
     }, {
@@ -363,45 +386,22 @@ function DoughnutElement(items, _ref2) {
   container.appendChild(htmlContainerElement);
   var root = createElement('svg', [['width', totalSize], ['height', totalSize]]);
   root.appendChild(container);
-  return root.outerHTML;
+  return root;
 }
 
 var CroppedDoughnutChart = function CroppedDoughnutChart(_ref) {
-
-  var _useState = React.useState(""),
-      state = _useState[0],
-      setState = _useState[1];
-
+  var items = _ref.items,
+      options = _ref.options;
+  var svg = React.useRef(null);
   React.useEffect(function () {
-    var items = [{
-      value: 24,
-      color: "red"
-    }, {
-      value: 227,
-      color: "blue"
-    }, {
-      value: 49,
-      color: "pink"
-    }];
-    var imgUrl = "https://www.w3schools.com/html/pic_trulli.jpg";
-    var result = DoughnutElement(items, {
-      radius: 100,
-      width: 200,
-      title: "Halo",
-      titleColor: "#FF0000",
-      thicknessSize: "M",
-      gapSize: "XL",
-      labelSize: 12,
-      labelColor: "white",
-      backgroundColor: "white",
-      imgUrl: imgUrl
-    });
-    setState(result);
+    var result = DoughnutElement(items, options);
+
+    if (svg.current) {
+      svg.current.appendChild(result);
+    }
   }, []);
   return /*#__PURE__*/React__default.createElement("div", {
-    dangerouslySetInnerHTML: {
-      __html: state
-    }
+    ref: svg
   });
 };
 

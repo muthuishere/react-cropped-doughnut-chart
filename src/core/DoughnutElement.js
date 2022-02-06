@@ -1,14 +1,17 @@
-import { createElement } from './elements'
-import {  drawingCoordinatesinCircle } from "./calculations";
+import { createElement, insertStyles } from "./elements";
 import { getHtmlContainerElement } from './HtmlContainerElement'
 import { getSliceElement } from './SliceElement'
-import { formatItems } from "./formatter";
+import { formatItems } from './formatter'
+import { createArc } from './elementCreator'
 
-function createArcFrom(point, angles, radius) {
-  const innerArc = createElement('path', [])
-  const innerArcData = drawingCoordinatesinCircle(point, angles, radius)
-  innerArc.setAttributeNS(null, 'd', innerArcData)
-  return innerArc
+function createArcForOverAllContainer(className, point, angles, radius) {
+  const containerAttributes = [
+    ['fill', 'none'],
+    ['stroke', 'none'],
+    ['class', className],
+    ['stroke-width', '0']
+  ]
+  return createArc(containerAttributes, point, angles, radius)
 }
 
 const thicknessWithRatio = {
@@ -45,11 +48,34 @@ function getCircle({ x, y }, radius, defaultcolor) {
   ])
 }
 
+export function DoughnutElement(items, options) {
+  insertStyles()
+  const defaultOptions = {
+    radius: 100,
+    title: '',
+    titleColor: '#FF0000',
+    thicknessSize: 'M',
+    gapSize: 'XL',
+    labelSize: 12,
+    labelColor: 'white',
+    backgroundColor: 'white',
+    imgUrl:
+      'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+  }
 
-export function DoughnutElement(
-  items,
-  { radius, title, thicknessSize, gapSize, backgroundColor, imgUrl,  titleColor,labelSize,labelColor }
-) {
+  const formattedOptions = { ...defaultOptions, ...options }
+
+  const {
+    radius,
+    title,
+    thicknessSize,
+    gapSize,
+    backgroundColor,
+    imgUrl,
+    titleColor,
+    labelSize,
+    labelColor
+  } = formattedOptions
   const thicknessOfCircle = thicknessWithRatio[thicknessSize]
   const totalSize = (radius + thicknessOfCircle) * 2
   const x = totalSize / 2
@@ -61,9 +87,14 @@ export function DoughnutElement(
   const percentageToDegree = (percent) => percent * total
 
   const container = createElement('g', [])
-
-  const innerArc = createArcFrom({ x, y }, { startAngle, endAngle }, radius)
-  const outerArc = createArcFrom(
+  const innerArc = createArcForOverAllContainer(
+    'overall-inner-container',
+    { x, y },
+    { startAngle, endAngle },
+    radius
+  )
+  const outerArc = createArcForOverAllContainer(
+    'overall-outer-container',
     { x, y },
     { startAngle, endAngle },
     outerRadius
@@ -74,33 +105,19 @@ export function DoughnutElement(
 
   let initAngle = startAngle
 
-
-  const formattedItems = formatItems(items)
+  const formattedItems = formatItems(items, labelColor)
 
   formattedItems.forEach((item, index) => {
-    let {label, value,color,percentage} = item
-    // if(undefined == value){
-    //   label = "" + item
-    //   value = item;
-    //   color =colors[index]
-    // }else {
-    //
-    //   let formattedItem = item || { label: '' +item.value, color: colors[index] }
-    //   label = formattedItem.label
-    //   color = formattedItem.color
-    //   value = formattedItem.value
-    // }
+    const { label, value, color, percentage } = item
 
-    console.log(label)
-    console.log(color)
-    console.log(value)
     const endAngle = initAngle + percentageToDegree(percentage)
 
     const currentBoxElement = getSliceElement(
       { startAngle: initAngle, endAngle },
-      {label, value,color},
+      item,
       { x, y },
-      { innerRadius: radius, outerRadius: outerRadius },{labelSize,labelColor}
+      { innerRadius: radius, outerRadius: outerRadius },
+      { labelSize, labelColor }
     )
 
     container.appendChild(currentBoxElement)
@@ -124,5 +141,6 @@ export function DoughnutElement(
     ['height', totalSize]
   ])
   root.appendChild(container)
-  return root.outerHTML
+  // return root.outerHTML
+  return root
 }

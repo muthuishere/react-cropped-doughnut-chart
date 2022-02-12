@@ -41,17 +41,25 @@ function createHtmlElement(name, attribs) {
   });
   return element;
 }
-function insertStyles() {
+function insertStyles(styles) {
   if (document.head.querySelector("#doughnut-cropped-chart-styles")) {
     return;
   }
 
-  var styles = "\n        a:hover .path-container {\n            opacity: 0.5;\n            transition: all ease 0.3s;\n        }\n        a .path-container {\n            opacity: 1.0;\n            transition: all ease 0.3s;\n        }\n\n";
   var styleSheet = document.createElement('style');
   styleSheet.setAttribute('type', 'text/css');
   styleSheet.setAttribute('id', 'doughnut-cropped-chart-styles');
   styleSheet.innerHTML = styles;
   document.head.appendChild(styleSheet);
+}
+function createContainer() {
+  var container = createElement('g', []);
+  return container;
+}
+function createCircle(_ref3, radius, defaultcolor) {
+  var x = _ref3.x,
+      y = _ref3.y;
+  return createElement('circle', [['cx', x], ['cy', y], ['r', radius], ['fill', defaultcolor]]);
 }
 
 var PADDING_RATIO = 0.8;
@@ -110,6 +118,38 @@ function drawingCoordinatesForTextPosition(_ref4, _ref5, radius) {
   var arcSweep = endAngle - startAngle <= 180 ? '0' : '1';
   var d = ['M', endPoint.x, endPoint.y, 'A', radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(' ');
   return d;
+}
+
+function coordinatesForArc(_ref, _ref2, radius) {
+  var x = _ref.x,
+      y = _ref.y;
+  var startAngle = _ref2.startAngle,
+      endAngle = _ref2.endAngle;
+  var startPoint = polarToCartesian(x, y, radius, startAngle);
+  var endPoint = polarToCartesian(x, y, radius, endAngle);
+  var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+  var d = ["M", endPoint.x, endPoint.y, "A", radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(" ");
+  return d;
+}
+function createArc(containerAttributes, point, angles, radius) {
+  var innerArc = createElement("path", containerAttributes);
+  var innerArcData = coordinatesForArc(point, angles, radius);
+  innerArc.setAttributeNS(null, "d", innerArcData);
+  return innerArc;
+}
+function createArcForSlice(point, angles, _ref4, color, strokeArray) {
+  var outerRadius = _ref4.outerRadius,
+      innerRadius = _ref4.innerRadius;
+  var borderWidth = outerRadius - innerRadius;
+  var strokeData = strokeArray * -1;
+  var containerAttributes = [["fill", "none"], ["stroke", color], ["stroke-width", borderWidth], ["stroke-dashoffset", "" + strokeData], ["stroke-dasharray", "" + strokeArray], ["class", "path-container"]];
+  var arc = createArc(containerAttributes, point, angles, innerRadius);
+  return arc;
+}
+
+function getRandomSixDigitString() {
+  var str = "" + Math.floor(Math.random() * (999999 - 1)) + 1;
+  return str.padStart(6, "0");
 }
 
 var colors = ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#8B00FF"];
@@ -173,44 +213,31 @@ function formatItems(inputItems, defaultLabelColor) {
     return _extends({}, item, {
       percentage: item.value / total * 100
     });
-  }).map(formatLabel).map(formatColor).map(formatLabelColorWithDefault);
+  }).map(formatLabel).map(formatColor).map(formatLabelColorWithDefault).map(formatSliceId).map(formatSlicePreviousId);
 }
 function formatLabelColor(item, defaultLabelColor) {
   return _extends({}, {
     labelColor: defaultLabelColor
   }, item);
 }
-
-function coordinatesForArc(_ref, _ref2, radius) {
-  var x = _ref.x,
-      y = _ref.y;
-  var startAngle = _ref2.startAngle,
-      endAngle = _ref2.endAngle;
-  var startPoint = polarToCartesian(x, y, radius, startAngle);
-  var endPoint = polarToCartesian(x, y, radius, endAngle);
-  var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
-  var d = ["M", endPoint.x, endPoint.y, "A", radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(" ");
-  return d;
+function formatSliceId(item) {
+  var value = item.value;
+  var id = value + '' + getRandomSixDigitString();
+  return _extends({}, {
+    id: id
+  }, item);
 }
-function createArc(containerAttributes, point, angles, radius) {
-  var innerArc = createElement("path", containerAttributes);
-  var innerArcData = coordinatesForArc(point, angles, radius);
-  innerArc.setAttributeNS(null, "d", innerArcData);
-  return innerArc;
-}
+function formatSlicePreviousId(item, index, array) {
+  var previousItem = array[index - 1];
 
-function createArcForSlice(point, angles, _ref, color) {
-  var outerRadius = _ref.outerRadius,
-      innerRadius = _ref.innerRadius;
-  var borderWidth = outerRadius - innerRadius;
-  var containerAttributes = [['fill', 'none'], ['stroke', color], ['stroke-width', borderWidth], ['stroke-dashoffset', "-500"], ['stroke-dasharray', "500"], ['class', 'path-container']];
-  var arc = createArc(containerAttributes, point, angles, innerRadius);
-  return arc;
-}
+  var _ref = previousItem || {
+    id: null
+  },
+      previousId = _ref.id;
 
-function createAnimation(id, animationStart) {
-  var animateElement = createElement('animate', [['id', id], ['attributeName', 'stroke-dashoffset'], ['begin', animationStart], ['values', '-500;0'], ['dur', '5s'], ['calcMode', 'linear'], ['repeatCount', '1'], ['fill', 'freeze']]);
-  return animateElement;
+  return _extends({}, {
+    previousId: previousId
+  }, item);
 }
 
 function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
@@ -222,10 +249,10 @@ function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
   return textPathDefinitionElement;
 }
 
-function createTextElement(textId, _ref2) {
-  var label = _ref2.label,
-      labelSize = _ref2.labelSize,
-      labelColor = _ref2.labelColor;
+function createTextElement(textId, _ref) {
+  var label = _ref.label,
+      labelSize = _ref.labelSize,
+      labelColor = _ref.labelColor;
   var textElement = createElement('text', [['font-size', labelSize + 'px'], ['fill', labelColor], ['rotate', '180']]);
   var textPathElement = createElement('textPath', [['href', '#' + textId], ['text-anchor', 'middle'], ['startOffset', '50%']]);
   textPathElement.innerHTML = reverseString(label);
@@ -233,10 +260,10 @@ function createTextElement(textId, _ref2) {
   return textElement;
 }
 
-function getTextElements(id, _ref3, innerAndOuterRadius, angles, point) {
-  var label = _ref3.label,
-      labelSize = _ref3.labelSize,
-      labelColor = _ref3.labelColor;
+function getTextElements(id, _ref2, innerAndOuterRadius, angles, point) {
+  var label = _ref2.label,
+      labelSize = _ref2.labelSize,
+      labelColor = _ref2.labelColor;
   var textId = 'text' + id;
   var textPositionPathElement = createTextDefinition(textId, innerAndOuterRadius, angles, point);
   var textElement = createTextElement(textId, {
@@ -244,20 +271,20 @@ function getTextElements(id, _ref3, innerAndOuterRadius, angles, point) {
     labelSize: labelSize,
     labelColor: labelColor
   });
-  return {
-    textPositionPathElement: textPositionPathElement,
-    textElement: textElement
-  };
+  var container = createContainer();
+  container.appendChild(textPositionPathElement);
+  container.appendChild(textElement);
+  return container;
 }
 
-function getSliceElement(angles, _ref4, point, _ref5, _ref6, _ref7) {
-  var label = _ref4.label,
-      color = _ref4.color,
-      labelColor = _ref4.labelColor;
-  var innerRadius = _ref5.innerRadius,
-      outerRadius = _ref5.outerRadius;
-  var labelSize = _ref6.labelSize;
-  var id = _ref7.id;
+function getSliceElement(angles, _ref, point, _ref2, _ref3, _ref4) {
+  var label = _ref.label,
+      color = _ref.color,
+      labelColor = _ref.labelColor;
+  var innerRadius = _ref2.innerRadius,
+      outerRadius = _ref2.outerRadius;
+  var labelSize = _ref3.labelSize;
+  var id = _ref4.id;
   var containerId = 'box' + id;
   var container = createElement('a', [['id', 'container' + containerId], ['href', '#'], ['style', 'text-decoration: none;']]);
   var titleElement = createElement('title', []);
@@ -266,25 +293,71 @@ function getSliceElement(angles, _ref4, point, _ref5, _ref6, _ref7) {
   var arc = createArcForSlice(point, angles, {
     innerRadius: innerRadius,
     outerRadius: outerRadius
-  }, color);
-  var animateElement = createAnimation('anim' + containerId, "5s;anim4.end");
-  arc.appendChild(animateElement);
+  }, color, 0);
   container.appendChild(arc);
-
-  var _getTextElements = getTextElements(containerId, {
+  var textContainer = getTextElements(id, {
     label: label,
     labelSize: labelSize,
     labelColor: labelColor
   }, {
     innerRadius: innerRadius,
     outerRadius: outerRadius
-  }, angles, point),
-      textPositionPathElement = _getTextElements.textPositionPathElement,
-      textElement = _getTextElements.textElement;
-
-  container.appendChild(textPositionPathElement);
-  container.appendChild(textElement);
+  }, angles, point);
+  container.appendChild(textContainer);
   return container;
+}
+
+function createArcAnimation(strokeArray) {
+  var animateElement = createElement("animate", [["attributeType", "CSS"], ["attributeName", "stroke-dashoffset"], ["values", "0;" + strokeArray], ["dur", "2s"], ["fill", "freeze"]]);
+  return animateElement;
+}
+function createOpacityAnimation() {
+  var animateElement = createElement("animate", [["attributeName", "opacity"], ["from", "1"], ["to", "0"], ["dur", "2s"], ["begin", ".1s"], ["fill", "freeze"], ["repeatCount", "1"]]);
+  return animateElement;
+}
+function getBorderAnimation(_ref, _ref2, _ref3, backgroundColor) {
+  var x = _ref.x,
+      y = _ref.y;
+  var innerRadius = _ref2.innerRadius,
+      outerRadius = _ref2.outerRadius;
+  var startAngle = _ref3.startAngle,
+      endAngle = _ref3.endAngle;
+
+  if (backgroundColor === void 0) {
+    backgroundColor = "white";
+  }
+
+  var strokeArray = 500;
+  var animatedMaskArc = createArcForSlice({
+    x: x,
+    y: y
+  }, {
+    startAngle: startAngle,
+    endAngle: endAngle
+  }, {
+    innerRadius: innerRadius,
+    outerRadius: outerRadius + 10
+  }, backgroundColor, strokeArray);
+  animatedMaskArc.setAttribute("stroke-dashoffset", "0");
+  var animateElement = createArcAnimation(strokeArray);
+  animatedMaskArc.appendChild(animateElement);
+  return animatedMaskArc;
+}
+function getCenterTitleAnimation(_ref4, radius, backgroundColor) {
+  var x = _ref4.x,
+      y = _ref4.y;
+
+  if (backgroundColor === void 0) {
+    backgroundColor = "white";
+  }
+
+  var animatedMaskCircle = createCircle({
+    x: x,
+    y: y
+  }, radius, backgroundColor);
+  var animateElement = createOpacityAnimation();
+  animatedMaskCircle.appendChild(animateElement);
+  return animatedMaskCircle;
 }
 
 var thicknessWithRatio = {
@@ -301,25 +374,21 @@ var sizeWithAngles = {
   M: [201, 520],
   S: [181, 540]
 };
-
-function getCircle(_ref, radius, defaultcolor) {
-  var x = _ref.x,
-      y = _ref.y;
-  return createElement('circle', [['cx', x], ['cy', y], ['r', radius], ['fill', defaultcolor]]);
-}
+var chartStyles = "\n        a:hover .path-container {\n            opacity: 0.5;\n            transition: all ease 0.3s;\n        }\n        a .path-container {\n            opacity: 1.0;\n            transition: all ease 0.3s;\n        }\n\n";
 
 function DoughnutElement(items, options) {
-  insertStyles();
+  insertStyles(chartStyles);
   var defaultOptions = {
     radius: 100,
-    title: '',
-    titleColor: '#FF0000',
-    thicknessSize: 'M',
-    gapSize: 'XL',
+    showAnimation: true,
+    title: "",
+    titleColor: "#FF0000",
+    thicknessSize: "M",
+    gapSize: "XL",
     labelSize: 12,
-    labelColor: 'white',
-    backgroundColor: 'white',
-    imgUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+    labelColor: "white",
+    backgroundColor: "white",
+    imgUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
   };
 
   var formattedOptions = _extends({}, defaultOptions, options);
@@ -327,6 +396,7 @@ function DoughnutElement(items, options) {
   var radius = formattedOptions.radius,
       title = formattedOptions.title,
       thicknessSize = formattedOptions.thicknessSize,
+      showAnimation = formattedOptions.showAnimation,
       gapSize = formattedOptions.gapSize,
       backgroundColor = formattedOptions.backgroundColor,
       imgUrl = formattedOptions.imgUrl,
@@ -347,14 +417,16 @@ function DoughnutElement(items, options) {
     return percent * total;
   };
 
-  var container = createElement('g', []);
-  var initAngle = startAngle;
+  var container = createElement("g", []);
+  var currentAngle = startAngle;
   var formattedItems = formatItems(items, labelColor);
   formattedItems.forEach(function (item, index) {
-    var percentage = item.percentage;
-    var endAngle = initAngle + percentageToDegree(percentage);
+    var percentage = item.percentage,
+        id = item.id,
+        previousId = item.previousId;
+    var endAngle = currentAngle + percentageToDegree(percentage);
     var currentBoxElement = getSliceElement({
-      startAngle: initAngle,
+      startAngle: currentAngle,
       endAngle: endAngle
     }, item, {
       x: x,
@@ -366,22 +438,38 @@ function DoughnutElement(items, options) {
       labelSize: labelSize,
       labelColor: labelColor
     }, {
-      id: "2",
-      previousId: "1"
+      id: id,
+      previousId: previousId
     });
     container.appendChild(currentBoxElement);
-    initAngle = endAngle;
+    currentAngle = endAngle;
   });
   var htmlContainerElement = getHtmlContainerElement({
     x: x,
     y: y
   }, radius, imgUrl, title, titleColor);
-  var backgroundCircle = getCircle({
-    x: x,
-    y: y
-  }, radius, backgroundColor);
   container.appendChild(htmlContainerElement);
-  var root = createElement('svg', [['width', totalSize], ['height', totalSize]]);
+
+  if (showAnimation) {
+    var borderAnimation = getBorderAnimation({
+      x: x,
+      y: y
+    }, {
+      innerRadius: radius,
+      outerRadius: outerRadius
+    }, {
+      startAngle: startAngle,
+      endAngle: currentAngle
+    }, backgroundColor);
+    container.appendChild(borderAnimation);
+    var centerTitleAnimation = getCenterTitleAnimation({
+      x: x,
+      y: y
+    }, radius, backgroundColor);
+    container.appendChild(centerTitleAnimation);
+  }
+
+  var root = createElement("svg", [["width", totalSize], ["height", totalSize]]);
   root.appendChild(container);
   return root;
 }

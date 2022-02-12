@@ -2,23 +2,24 @@ import {
   formatItems,
   formatSliceId,
   formatSlicePreviousId,
-  formatToArrayOfObjects, getRandomSixDigitString
+  formatToArrayOfObjects
 } from "./formatter";
 
-import * as formatter from "./formatter"
-
-let getRandomSixDigitStringSpy;
+// import * as formatter from "./formatter"
+import { getRandomSixDigitString } from "./randomizer";
+jest.mock('./randomizer');
+// let getRandomSixDigitStringSpy;
 
 
 const DEFAULT_RANDOM_VALUE = '123456';
 
-function mockRandomSixDigitString() {
-   getRandomSixDigitStringSpy = jest.spyOn(formatter, "getRandomSixDigitString");
-  getRandomSixDigitStringSpy.mockImplementation(() => {
-    return DEFAULT_RANDOM_VALUE;
-  });
-
-}
+// function mockRandomSixDigitString() {
+//    getRandomSixDigitStringSpy = jest.spyOn(formatter, "getRandomSixDigitString");
+//   getRandomSixDigitStringSpy.mockImplementation(() => {
+//     return DEFAULT_RANDOM_VALUE;
+//   });
+//
+// }
 
 
 
@@ -26,15 +27,15 @@ function mockRandomSixDigitString() {
 
 describe('formatItems Specification', function () {
 
-  beforeAll(() => {
-    console.log("before all")
-    mockRandomSixDigitString()
-  });
-
-  afterAll(() => {
-    console.log("afterAll all")
-    getRandomSixDigitStringSpy.mockRestore()
-  });
+  // beforeAll(() => {
+  //   console.log("before all")
+  //   mockRandomSixDigitString()
+  // });
+  //
+  // afterAll(() => {
+  //   console.log("afterAll all")
+  //   getRandomSixDigitStringSpy.mockRestore()
+  // });
 
   test('formatItems should work fine for calculating percentage', function () {
     const allTests = [
@@ -123,7 +124,11 @@ describe('formatItems Specification', function () {
           { label: '25', value: 100, color: 'blue' },
           { value: 50 }
         ],
-        expected: ['red', 'white', 'white']
+        expected:   [
+          { previousId: null, id: '50123456' },
+          { previousId: '50123456', id: '100123456' },
+          { previousId: '100123456', id: '50123456' }
+        ]
       }
     ]
 
@@ -132,9 +137,9 @@ describe('formatItems Specification', function () {
 
       const formattedItems = formatItems(input, "white")
 
-      const result = formattedItems.map(formatSliceId).map(formatSlicePreviousId)
+      const result = formattedItems.map(formatSliceId).map(formatSlicePreviousId).map(({ previousId,id }) => ({ previousId,
+        id}))
 
-      console.log(result)
       expect(result).toEqual(expected)
     })
   })

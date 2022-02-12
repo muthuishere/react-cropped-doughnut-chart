@@ -12,27 +12,26 @@ function createHtmlElement(name, attribs) {
   attribs.forEach(([name, value]) => element.setAttribute(name, value));
   return element;
 }
-function insertStyles() {
+function insertStyles(styles) {
   if (document.head.querySelector("#doughnut-cropped-chart-styles")) {
     return;
   }
 
-  var styles = `
-        a:hover .path-container {
-            opacity: 0.5;
-            transition: all ease 0.3s;
-        }
-        a .path-container {
-            opacity: 1.0;
-            transition: all ease 0.3s;
-        }
-
-`;
   var styleSheet = document.createElement('style');
   styleSheet.setAttribute('type', 'text/css');
   styleSheet.setAttribute('id', 'doughnut-cropped-chart-styles');
   styleSheet.innerHTML = styles;
   document.head.appendChild(styleSheet);
+}
+function createContainer() {
+  const container = createElement('g', []);
+  return container;
+}
+function createCircle({
+  x,
+  y
+}, radius, defaultcolor) {
+  return createElement('circle', [['cx', x], ['cy', y], ['r', radius], ['fill', defaultcolor]]);
 }
 
 const PADDING_RATIO = 0.8;
@@ -99,6 +98,41 @@ function drawingCoordinatesForTextPosition({
   return d;
 }
 
+function coordinatesForArc({
+  x,
+  y
+}, {
+  startAngle,
+  endAngle
+}, radius) {
+  const startPoint = polarToCartesian(x, y, radius, startAngle);
+  const endPoint = polarToCartesian(x, y, radius, endAngle);
+  const arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+  const d = ["M", endPoint.x, endPoint.y, "A", radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(" ");
+  return d;
+}
+function createArc(containerAttributes, point, angles, radius) {
+  const innerArc = createElement("path", containerAttributes);
+  const innerArcData = coordinatesForArc(point, angles, radius);
+  innerArc.setAttributeNS(null, "d", innerArcData);
+  return innerArc;
+}
+function createArcForSlice(point, angles, {
+  outerRadius,
+  innerRadius
+}, color, strokeArray) {
+  const borderWidth = outerRadius - innerRadius;
+  const strokeData = strokeArray * -1;
+  const containerAttributes = [["fill", "none"], ["stroke", color], ["stroke-width", borderWidth], ["stroke-dashoffset", "" + strokeData], ["stroke-dasharray", "" + strokeArray], ["class", "path-container"]];
+  const arc = createArc(containerAttributes, point, angles, innerRadius);
+  return arc;
+}
+
+function getRandomSixDigitString() {
+  const str = "" + Math.floor(Math.random() * (999999 - 1)) + 1;
+  return str.padStart(6, "0");
+}
+
 const colors = ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#8B00FF"];
 
 function formatLabel(item) {
@@ -152,7 +186,7 @@ function formatItems(inputItems, defaultLabelColor) {
   const total = items.reduce((acc, item) => acc + item.value, 0);
   return items.map(item => ({ ...item,
     percentage: item.value / total * 100
-  })).map(formatLabel).map(formatColor).map(formatLabelColorWithDefault);
+  })).map(formatLabel).map(formatColor).map(formatLabelColorWithDefault).map(formatSliceId).map(formatSlicePreviousId);
 }
 function formatLabelColor(item, defaultLabelColor) {
   return { ...{
@@ -161,40 +195,29 @@ function formatLabelColor(item, defaultLabelColor) {
     ...item
   };
 }
-
-function coordinatesForArc({
-  x,
-  y
-}, {
-  startAngle,
-  endAngle
-}, radius) {
-  const startPoint = polarToCartesian(x, y, radius, startAngle);
-  const endPoint = polarToCartesian(x, y, radius, endAngle);
-  const arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
-  const d = ["M", endPoint.x, endPoint.y, "A", radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(" ");
-  return d;
+function formatSliceId(item) {
+  const {
+    value
+  } = item;
+  const id = value + '' + getRandomSixDigitString();
+  return { ...{
+      id: id
+    },
+    ...item
+  };
 }
-function createArc(containerAttributes, point, angles, radius) {
-  const innerArc = createElement("path", containerAttributes);
-  const innerArcData = coordinatesForArc(point, angles, radius);
-  innerArc.setAttributeNS(null, "d", innerArcData);
-  return innerArc;
-}
-
-function createArcForSlice(point, angles, {
-  outerRadius,
-  innerRadius
-}, color) {
-  const borderWidth = outerRadius - innerRadius;
-  const containerAttributes = [['fill', 'none'], ['stroke', color], ['stroke-width', borderWidth], ['stroke-dashoffset', "-500"], ['stroke-dasharray', "500"], ['class', 'path-container']];
-  const arc = createArc(containerAttributes, point, angles, innerRadius);
-  return arc;
-}
-
-function createAnimation(id, animationStart) {
-  const animateElement = createElement('animate', [['id', id], ['attributeName', 'stroke-dashoffset'], ['begin', animationStart], ['values', '-500;0'], ['dur', '5s'], ['calcMode', 'linear'], ['repeatCount', '1'], ['fill', 'freeze']]);
-  return animateElement;
+function formatSlicePreviousId(item, index, array) {
+  const previousItem = array[index - 1];
+  const {
+    id: previousId
+  } = previousItem || {
+    id: null
+  };
+  return { ...{
+      previousId: previousId
+    },
+    ...item
+  };
 }
 
 function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
@@ -230,10 +253,10 @@ function getTextElements(id, {
     labelSize,
     labelColor
   });
-  return {
-    textPositionPathElement,
-    textElement
-  };
+  const container = createContainer();
+  container.appendChild(textPositionPathElement);
+  container.appendChild(textElement);
+  return container;
 }
 
 function getSliceElement(angles, {
@@ -258,14 +281,9 @@ function getSliceElement(angles, {
   const arc = createArcForSlice(point, angles, {
     innerRadius,
     outerRadius
-  }, color);
-  const animateElement = createAnimation('anim' + containerId, "5s;anim4.end");
-  arc.appendChild(animateElement);
+  }, color, 0);
   container.appendChild(arc);
-  const {
-    textPositionPathElement,
-    textElement
-  } = getTextElements(containerId, {
+  const textContainer = getTextElements(id, {
     label,
     labelSize,
     labelColor
@@ -273,9 +291,55 @@ function getSliceElement(angles, {
     innerRadius,
     outerRadius
   }, angles, point);
-  container.appendChild(textPositionPathElement);
-  container.appendChild(textElement);
+  container.appendChild(textContainer);
   return container;
+}
+
+function createArcAnimation(strokeArray) {
+  const animateElement = createElement("animate", [["attributeType", "CSS"], ["attributeName", "stroke-dashoffset"], ["values", "0;" + strokeArray], ["dur", "2s"], ["fill", "freeze"]]);
+  return animateElement;
+}
+function createOpacityAnimation() {
+  const animateElement = createElement("animate", [["attributeName", "opacity"], ["from", "1"], ["to", "0"], ["dur", "2s"], ["begin", ".1s"], ["fill", "freeze"], ["repeatCount", "1"]]);
+  return animateElement;
+}
+function getBorderAnimation({
+  x,
+  y
+}, {
+  innerRadius,
+  outerRadius
+}, {
+  startAngle,
+  endAngle
+}, backgroundColor = "white") {
+  const strokeArray = 500;
+  const animatedMaskArc = createArcForSlice({
+    x,
+    y
+  }, {
+    startAngle,
+    endAngle
+  }, {
+    innerRadius,
+    outerRadius: outerRadius + 10
+  }, backgroundColor, strokeArray);
+  animatedMaskArc.setAttribute("stroke-dashoffset", "0");
+  const animateElement = createArcAnimation(strokeArray);
+  animatedMaskArc.appendChild(animateElement);
+  return animatedMaskArc;
+}
+function getCenterTitleAnimation({
+  x,
+  y
+}, radius, backgroundColor = "white") {
+  const animatedMaskCircle = createCircle({
+    x,
+    y
+  }, radius, backgroundColor);
+  const animateElement = createOpacityAnimation();
+  animatedMaskCircle.appendChild(animateElement);
+  return animatedMaskCircle;
 }
 
 const thicknessWithRatio = {
@@ -292,26 +356,31 @@ const sizeWithAngles = {
   M: [201, 520],
   S: [181, 540]
 };
+const chartStyles = `
+        a:hover .path-container {
+            opacity: 0.5;
+            transition: all ease 0.3s;
+        }
+        a .path-container {
+            opacity: 1.0;
+            transition: all ease 0.3s;
+        }
 
-function getCircle({
-  x,
-  y
-}, radius, defaultcolor) {
-  return createElement('circle', [['cx', x], ['cy', y], ['r', radius], ['fill', defaultcolor]]);
-}
+`;
 
 function DoughnutElement(items, options) {
-  insertStyles();
+  insertStyles(chartStyles);
   const defaultOptions = {
     radius: 100,
-    title: '',
-    titleColor: '#FF0000',
-    thicknessSize: 'M',
-    gapSize: 'XL',
+    showAnimation: true,
+    title: "",
+    titleColor: "#FF0000",
+    thicknessSize: "M",
+    gapSize: "XL",
     labelSize: 12,
-    labelColor: 'white',
-    backgroundColor: 'white',
-    imgUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+    labelColor: "white",
+    backgroundColor: "white",
+    imgUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
   };
   const formattedOptions = { ...defaultOptions,
     ...options
@@ -320,6 +389,7 @@ function DoughnutElement(items, options) {
     radius,
     title,
     thicknessSize,
+    showAnimation,
     gapSize,
     backgroundColor,
     imgUrl,
@@ -338,8 +408,8 @@ function DoughnutElement(items, options) {
 
   const percentageToDegree = percent => percent * total;
 
-  const container = createElement('g', []);
-  let initAngle = startAngle;
+  const container = createElement("g", []);
+  let currentAngle = startAngle;
   const formattedItems = formatItems(items, labelColor);
   formattedItems.forEach((item, index) => {
     const {
@@ -347,11 +417,12 @@ function DoughnutElement(items, options) {
       value,
       color,
       percentage,
-      id
+      id,
+      previousId
     } = item;
-    const endAngle = initAngle + percentageToDegree(percentage);
+    const endAngle = currentAngle + percentageToDegree(percentage);
     const currentBoxElement = getSliceElement({
-      startAngle: initAngle,
+      startAngle: currentAngle,
       endAngle
     }, item, {
       x,
@@ -363,22 +434,38 @@ function DoughnutElement(items, options) {
       labelSize,
       labelColor
     }, {
-      id: "2",
-      previousId: "1"
+      id,
+      previousId
     });
     container.appendChild(currentBoxElement);
-    initAngle = endAngle;
+    currentAngle = endAngle;
   });
   const htmlContainerElement = getHtmlContainerElement({
     x,
     y
   }, radius, imgUrl, title, titleColor);
-  const backgroundCircle = getCircle({
-    x,
-    y
-  }, radius, backgroundColor);
   container.appendChild(htmlContainerElement);
-  const root = createElement('svg', [['width', totalSize], ['height', totalSize]]);
+
+  if (showAnimation) {
+    const borderAnimation = getBorderAnimation({
+      x,
+      y
+    }, {
+      innerRadius: radius,
+      outerRadius: outerRadius
+    }, {
+      startAngle,
+      endAngle: currentAngle
+    }, backgroundColor);
+    container.appendChild(borderAnimation);
+    const centerTitleAnimation = getCenterTitleAnimation({
+      x,
+      y
+    }, radius, backgroundColor);
+    container.appendChild(centerTitleAnimation);
+  }
+
+  const root = createElement("svg", [["width", totalSize], ["height", totalSize]]);
   root.appendChild(container);
   return root;
 }

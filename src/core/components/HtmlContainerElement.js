@@ -1,4 +1,4 @@
-import { createElement, createHtmlElement } from './elements'
+import { createElement, createHtmlElement } from '../builder/elements'
 
 export const PADDING_RATIO = 0.8
 export function getHtmlContainerElement({ x, y }, radius, imgUrl, title, textColor) {

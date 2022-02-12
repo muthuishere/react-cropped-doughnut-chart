@@ -1,3 +1,5 @@
+import { getRandomSixDigitString } from "./randomizer";
+
 const colors = [
   "#FF0000",
   "#FF7F00",
@@ -63,6 +65,8 @@ export function formatItems(inputItems, defaultLabelColor) {
     .map(formatLabel)
     .map(formatColor)
     .map(formatLabelColorWithDefault)
+    .map(formatSliceId)
+    .map(formatSlicePreviousId)
     ;
 }
 
@@ -75,18 +79,11 @@ export function formatLabelColor(item, defaultLabelColor) {
 
 }
 
-export function getRandomSixDigitString() {
-  const str = "" + Math.floor(Math.random() * (999999 - 1)) + 1;
-  return str.padStart(6, "0");
-}
-
 export function formatSliceId(item) {
-  // console.log(index)
-  // console.log(array)
+
   const { value } = item;
-  let randomSixDigitString = getRandomSixDigitString();
-  console.log("randomSixDigitString", randomSixDigitString);
-  const id = value +""+ randomSixDigitString;
+
+  const id = value + '' + getRandomSixDigitString();
 
 
   return {
@@ -98,7 +95,7 @@ export function formatSliceId(item) {
 export function formatSlicePreviousId(item,  index, array) {
   // console.log(index)
   // console.log(array)
-  const { value,id } = item;
+
   const previousItem = array[index - 1];
   const { id: previousId } = previousItem || {id:null};
 

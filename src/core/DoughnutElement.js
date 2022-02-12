@@ -1,23 +1,13 @@
 import { createElement, insertStyles } from "./elements";
-import { getHtmlContainerElement } from './HtmlContainerElement'
-import { getSliceElement } from './SliceElement'
-import { formatItems } from './formatter'
-import { createArc } from './elementCreator'
+import { getHtmlContainerElement } from "./HtmlContainerElement";
+import { getSliceElement } from "./SliceElement";
+import { formatItems } from "./formatter";
 
-function createArcForOverAllContainer(className, point, angles, radius) {
-  const containerAttributes = [
-    ['fill', 'none'],
-    ['stroke', 'none'],
-    ['class', className],
-    ['stroke-width', '0']
-  ]
-  return createArc(containerAttributes, point, angles, radius)
-}
 
 const thicknessWithRatio = {
-  XXL: 125,
-  XL: 100,
-  L: 75,
+  XXL: 150,
+  XL: 125,
+  L: 100,
   M: 50,
   S: 35
 }
@@ -87,37 +77,27 @@ export function DoughnutElement(items, options) {
   const percentageToDegree = (percent) => percent * total
 
   const container = createElement('g', [])
-  const innerArc = createArcForOverAllContainer(
-    'overall-inner-container',
-    { x, y },
-    { startAngle, endAngle },
-    radius
-  )
-  const outerArc = createArcForOverAllContainer(
-    'overall-outer-container',
-    { x, y },
-    { startAngle, endAngle },
-    outerRadius
-  )
 
-  container.appendChild(outerArc)
-  container.appendChild(innerArc)
 
   let initAngle = startAngle
 
   const formattedItems = formatItems(items, labelColor)
 
+
   formattedItems.forEach((item, index) => {
-    const { label, value, color, percentage } = item
+    const { label, value, color, percentage,id } = item
+
 
     const endAngle = initAngle + percentageToDegree(percentage)
 
-    const currentBoxElement = getSliceElement(
-      { startAngle: initAngle, endAngle },
-      item,
-      { x, y },
-      { innerRadius: radius, outerRadius: outerRadius },
-      { labelSize, labelColor }
+    const currentBoxElement = getSliceElement({ startAngle: initAngle, endAngle }, item, {
+      x,
+      y
+    }, { innerRadius: radius, outerRadius: outerRadius }, { labelSize, labelColor },
+      {
+      id: "2",
+      previousId: "1"
+    }
     )
 
     container.appendChild(currentBoxElement)
@@ -133,7 +113,7 @@ export function DoughnutElement(items, options) {
   )
   const backgroundCircle = getCircle({ x, y }, radius, backgroundColor)
 
-  container.appendChild(backgroundCircle)
+  // container.appendChild(backgroundCircle)
   container.appendChild(htmlContainerElement)
 
   const root = createElement('svg', [

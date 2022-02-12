@@ -1,32 +1,46 @@
-import { createElement } from './elements'
-import {
-  drawingCoordinatesBetweenInnerAndOuterCircle
+import { createElement } from "./elements";
+import { drawingCoordinatesBetweenInnerAndOuterCircle } from "./calculations";
+import { reverseString } from "./formatter";
+import { createArc } from "./arc";
 
-} from './calculations'
-import { reverseString } from './formatter'
-import { createArc } from './elementCreator'
-function createArcForSlice(point, angles, radius, color) {
+function createArcForSlice(point, angles, { outerRadius, innerRadius }, color) {
+  const borderWidth=  outerRadius - innerRadius
   const containerAttributes = [
-    ['fill', color],
-    ['stroke', 'none'],
-    ['class', 'path-container'],
-    ['stroke-width', '0']
+    ['fill', 'none'],
+    ['stroke', color],
+    ['stroke-width', borderWidth],
+    ['stroke-dashoffset', "-500"],
+    ['stroke-dasharray', "500"],
+    ['class', 'path-container']
+
   ]
-  const arc = createArc(containerAttributes, point, angles, radius);
+
+
+  // fill="none" stroke="#bc85ff" stroke-miterlimit="50" stroke-width="50" stroke-dashoffset="0" class="path-container"
+
+
+
+  const arc = createArc(containerAttributes, point, angles, innerRadius);
+
+  return arc
+}
+
+function createAnimation(id,animationStart){
+
+//begin="5s;anim4.end"
   const animateElement = createElement('animate', [
-    ['attributeName', 'fill'],
-    ['attributeType', 'XML'],
-    ['from', 'black'],
-    ['to', color],
-    ['dur', '2s'],
-    ['repeatCount', '1']
+    ['id', id],
+    ['attributeName', 'stroke-dashoffset'],
+    ['begin', animationStart],
+    ['values', '-500;0'],
+    ['dur', '5s'],
+    ['calcMode', 'linear'],
+    ['repeatCount', '1'],
+    ['fill', 'freeze']
 
 
   ]);
-  // <animateColor attributeName="fill" attributeType="XML"
-  //               from="black" to="red" dur="6s" repeatCount="indefinite"/>
-  arc.appendChild(animateElement);
-  return arc
+  return animateElement
 }
 
 function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
@@ -90,10 +104,7 @@ function getTextElements(
     textElement
   }
 }
-export function getRandomSixDigitString() {
-  const str = '' + Math.floor(Math.random() * (999999 - 1)) + 1
-  return str.padStart(6, '0')
-}
+
 
 // export function sliceElement(
 //   { startAngle, endAngle },
@@ -104,14 +115,15 @@ export function getRandomSixDigitString() {
 
 export function getSliceElement(
   angles,
-  { label, value, color,labelColor },
+  { label, value, color, labelColor },
   point,
   { innerRadius, outerRadius },
   { labelSize }
-) {
-  const id = 'box' + value + getRandomSixDigitString()
+  , { id, previousId } ) {
+
+  const containerId = 'box' + id
   const container = createElement('a', [
-    ['id', 'container' + id],
+    ['id', 'container' + containerId],
     ['href', '#'],
     ['style', 'text-decoration: none;']
   ])
@@ -121,11 +133,14 @@ export function getSliceElement(
   titleElement.innerHTML = label;
 
   container.appendChild(titleElement)
-  const arc = createArcForSlice(point, angles, outerRadius, color)
+  //let animationStart = "5s;anim4.end";
+  const arc = createArcForSlice(point, angles,  { innerRadius, outerRadius }, color)
+  const animateElement = createAnimation('anim' + containerId, "5s;anim4.end")
+  arc.appendChild(animateElement);
 
   container.appendChild(arc)
   const { textPositionPathElement, textElement } = getTextElements(
-    id,
+    containerId,
     { label, labelSize, labelColor },
     { innerRadius, outerRadius },
     angles,

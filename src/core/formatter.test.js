@@ -1,6 +1,41 @@
-import { formatItems, formatLabelColor, formatToArrayOfObjects } from "./formatter";
+import {
+  formatItems,
+  formatSliceId,
+  formatSlicePreviousId,
+  formatToArrayOfObjects, getRandomSixDigitString
+} from "./formatter";
+
+import * as formatter from "./formatter"
+
+let getRandomSixDigitStringSpy;
+
+
+const DEFAULT_RANDOM_VALUE = '123456';
+
+function mockRandomSixDigitString() {
+   getRandomSixDigitStringSpy = jest.spyOn(formatter, "getRandomSixDigitString");
+  getRandomSixDigitStringSpy.mockImplementation(() => {
+    return DEFAULT_RANDOM_VALUE;
+  });
+
+}
+
+
+
+
 
 describe('formatItems Specification', function () {
+
+  beforeAll(() => {
+    console.log("before all")
+    mockRandomSixDigitString()
+  });
+
+  afterAll(() => {
+    console.log("afterAll all")
+    getRandomSixDigitStringSpy.mockRestore()
+  });
+
   test('formatItems should work fine for calculating percentage', function () {
     const allTests = [
       {
@@ -69,6 +104,37 @@ describe('formatItems Specification', function () {
       const result = formatItems(input, defaultLabelColor).map(
         ({ labelColor }) => labelColor
       )
+      expect(result).toEqual(expected)
+    })
+  })
+
+
+  test('getRandomSixDigitString should be mocked', function () {
+
+    expect(getRandomSixDigitString()).toBe(DEFAULT_RANDOM_VALUE)
+
+  })
+  test('formatItems should work fine for id generation random', function () {
+
+    const allTests = [
+      {
+        input: [
+          { label: '23', value: 50 , color: 'blue',labelColor:'red'},
+          { label: '25', value: 100, color: 'blue' },
+          { value: 50 }
+        ],
+        expected: ['red', 'white', 'white']
+      }
+    ]
+
+    allTests.forEach(({ input, expected }) => {
+
+
+      const formattedItems = formatItems(input, "white")
+
+      const result = formattedItems.map(formatSliceId).map(formatSlicePreviousId)
+
+      console.log(result)
       expect(result).toEqual(expected)
     })
   })

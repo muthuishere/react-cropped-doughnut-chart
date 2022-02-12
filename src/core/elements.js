@@ -1,4 +1,4 @@
-import { drawingCoordinatesinCircle } from "./calculations";
+
 
 export const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
 export function createElement(name, attribs) {
@@ -38,6 +38,7 @@ export function insertStyles() {
             opacity: 1.0;
             transition: all ease 0.3s;
         }
+
 `
 
   var styleSheet = document.createElement('style')

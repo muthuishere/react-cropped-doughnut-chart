@@ -27,7 +27,7 @@ const App = () => {
     radius: 100,
     title:"Halo",
     titleColor:"#FF0000",
-    thicknessSize:"M",
+    thicknessSize:"S",
     gapSize:"XL",
     labelSize:12,
     labelColor:"white",

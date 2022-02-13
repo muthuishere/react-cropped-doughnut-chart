@@ -1,16 +1,18 @@
 import { createElement, insertStyles } from "./builder/elements";
-import { getHtmlContainerElement } from "./components/HtmlContainerElement";
-import { getSliceElement } from "./components/SliceElement";
+
 import { formatItems } from "./shared/formatter";
-import { getBorderAnimation, getCenterTitleAnimation } from "./components/Animations";
+import { getBorderAnimation, getCenterTitleAnimation } from "./components/Animator";
 import { chartStyles, sizeWithAngles, thicknessWithRatio } from "./shared/config";
+import { getSliceElement } from "./components/Slice";
+import { getTitleContainer } from "./components/TitleContainer";
 
 
-export function DoughnutElement(items, options) {
+export function HorseShoeChartCreator(items, options) {
   insertStyles(chartStyles);
   const defaultOptions = {
     radius: 100,
     showAnimation: true,
+    animationDurationInSeconds:2,
     title: "",
     titleColor: "#FF0000",
     thicknessSize: "M",
@@ -29,6 +31,7 @@ export function DoughnutElement(items, options) {
     title,
     thicknessSize,
     showAnimation,
+    animationDurationInSeconds,
     gapSize,
     backgroundColor,
     imgUrl,
@@ -73,7 +76,7 @@ export function DoughnutElement(items, options) {
     currentAngle = endAngle;
   });
 
-  const htmlContainerElement = getHtmlContainerElement(
+  const htmlContainerElement = getTitleContainer(
     { x, y },
     radius,
     imgUrl,
@@ -87,15 +90,22 @@ export function DoughnutElement(items, options) {
 
   if (showAnimation) {
 
+
     const borderAnimation = getBorderAnimation({ x, y }, {
       innerRadius: radius,
       outerRadius: outerRadius
-    }, { startAngle, endAngle: currentAngle }, backgroundColor);
+    }, { startAngle, endAngle: currentAngle }, backgroundColor,animationDurationInSeconds);
     container.appendChild(borderAnimation);
 
-    const centerTitleAnimation = getCenterTitleAnimation({ x, y }, radius, backgroundColor);
-    container.appendChild(centerTitleAnimation);
 
+    const centerTitleAnimation = getCenterTitleAnimation({ x, y }, radius, backgroundColor,animationDurationInSeconds);
+    container.appendChild(centerTitleAnimation);
+    centerTitleAnimation.querySelector("animate").onend = () => {
+      // animatedMaskCircle.parent.removeChild(animatedMaskCircle);
+      console.log("animate end")
+      container.removeChild(centerTitleAnimation);
+      container.removeChild(borderAnimation);
+    }
 
   }
 

@@ -1,7 +1,8 @@
 import React from 'react'
 
-import { CroppedDoughnutChart } from 'react-cropped-doughnut-chart'
+import { HorseShoeChart } from 'react-cropped-doughnut-chart'
 import 'react-cropped-doughnut-chart/dist/index.css'
+// import { HorseShoeChart } from "../../src";
 
 
 const App = () => {
@@ -36,11 +37,11 @@ const App = () => {
 
 
   return <div className="container">
-    <CroppedDoughnutChart items={items} options={options} />
+    <HorseShoeChart items={items} options={options} />
     <hr/>
-    <CroppedDoughnutChart items={items2}  />
+    <HorseShoeChart items={items2}  />
     <hr/>
-    <CroppedDoughnutChart items={items2}  />
+    <HorseShoeChart items={items2}  />
   </div>
 }
 

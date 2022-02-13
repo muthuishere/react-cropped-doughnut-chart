@@ -21,13 +21,13 @@ BRF:2
 BRH:0
 end_of_record
 TN:
-SF:C:\muthu\gitworkspace\libraries\npm\react\react-cropped-doughnut-chart\src\core\DoughnutElement.js
-FN:9,DoughnutElement
+SF:C:\muthu\gitworkspace\libraries\npm\react\react-cropped-doughnut-chart\src\core\HorseShoeChartCreator.js
+FN:9,HorseShoeChartCreator
 FN:47,(anonymous_1)
 FN:57,(anonymous_2)
 FNF:3
 FNH:3
-FNDA:1,DoughnutElement
+FNDA:1,HorseShoeChartCreator
 FNDA:3,(anonymous_1)
 FNDA:3,(anonymous_2)
 DA:10,1

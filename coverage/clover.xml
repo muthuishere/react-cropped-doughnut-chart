@@ -17,7 +17,7 @@
     </package>
     <package name="src.core">
       <metrics statements="32" coveredstatements="32" conditionals="2" coveredconditionals="1" methods="3" coveredmethods="3"/>
-      <file name="DoughnutElement.js" path="C:\muthu\gitworkspace\libraries\npm\react\react-cropped-doughnut-chart\src\core\DoughnutElement.js">
+      <file name="HorseShoeChartCreator.js" path="C:\muthu\gitworkspace\libraries\npm\react\react-cropped-doughnut-chart\src\core\HorseShoeChartCreator.js">
         <metrics statements="32" coveredstatements="32" conditionals="2" coveredconditionals="1" methods="3" coveredmethods="3"/>
         <line num="10" count="1" type="stmt"/>
         <line num="11" count="1" type="stmt"/>

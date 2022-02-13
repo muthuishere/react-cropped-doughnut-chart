@@ -24,13 +24,20 @@ export const colors = [
 ];
 
 export const  chartStyles = `
+
         a:hover .path-container {
+        cursor: pointer;
             opacity: 0.5;
             transition: all ease 0.3s;
         }
         a .path-container {
+        cursor: pointer;
             opacity: 1.0;
             transition: all ease 0.3s;
+        }
+
+    a .slice-container *{
+       cursor: pointer;
         }
 
 `

@@ -14,7 +14,7 @@ export function getSliceElement(
   const containerId = 'box' + id
   const container = createElement('a', [
     ['id', 'container' + containerId],
-    ['href', '#'],
+    ['class', 'slice-container'],
     ['style', 'text-decoration: none;']
   ])
 

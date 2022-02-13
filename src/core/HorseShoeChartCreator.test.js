@@ -1,4 +1,4 @@
-import { DoughnutElement } from "./DoughnutElement";
+import { HorseShoeChartCreator } from "./HorseShoeChartCreator";
 
 
 test("Doughnut element test",()=>{
@@ -17,7 +17,7 @@ test("Doughnut element test",()=>{
   let imgUrl = "https://www.w3schools.com/html/pic_trulli.jpg";
   // <svg id="root">
   // </svg>
-  const result= DoughnutElement(items,{
+  const result= HorseShoeChartCreator(items,{
     radius: 100,
     width: 200,
     title:"Halo",

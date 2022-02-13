@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { DoughnutElement } from "./core/DoughnutElement";
+import { HorseShoeChartCreator } from "./core/HorseShoeChartCreator";
 
-export const CroppedDoughnutChart = ({ items,options }) => {
+export const HorseShoeChart = ({ items,options }) => {
 
 
   const svg = useRef(null);
@@ -10,11 +10,10 @@ export const CroppedDoughnutChart = ({ items,options }) => {
   useEffect(() => {
 
 
-
-
-    const result= DoughnutElement(items,options )
+    const result= HorseShoeChartCreator(items,options )
 
     if(svg.current){
+
       svg.current.appendChild(result)
     }
 

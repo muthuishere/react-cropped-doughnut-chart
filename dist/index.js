@@ -41,17 +41,6 @@ function createHtmlElement(name, attribs) {
   });
   return element;
 }
-function insertStyles(styles) {
-  if (document.head.querySelector("#doughnut-cropped-chart-styles")) {
-    return;
-  }
-
-  var styleSheet = document.createElement('style');
-  styleSheet.setAttribute('type', 'text/css');
-  styleSheet.setAttribute('id', 'doughnut-cropped-chart-styles');
-  styleSheet.innerHTML = styles;
-  document.head.appendChild(styleSheet);
-}
 function createContainer() {
   var container = createElement('g', []);
   return container;
@@ -60,6 +49,20 @@ function createCircle(_ref3, radius, defaultcolor) {
   var x = _ref3.x,
       y = _ref3.y;
   return createElement('circle', [['cx', x], ['cy', y], ['r', radius], ['fill', defaultcolor]]);
+}
+function createDefinitionBlock() {
+  return createElement("defs", []);
+}
+function createGroupElement() {
+  return createElement("g", []);
+}
+function createSVGRoot(totalSize) {
+  return createElement("svg", [["width", totalSize], ["height", totalSize]]);
+}
+function createTitle(label) {
+  var titleElement = createElement("title", []);
+  titleElement.innerHTML = label;
+  return titleElement;
 }
 
 function getRandomSixDigitString() {
@@ -208,14 +211,13 @@ function createArc(containerAttributes, point, angles, radius) {
   innerArc.setAttributeNS(null, "d", innerArcData);
   return innerArc;
 }
-function createArcForSlice(point, angles, _ref4, color, strokeArray) {
-  var outerRadius = _ref4.outerRadius,
-      innerRadius = _ref4.innerRadius;
+function createArcForSlice(point, angles, _ref3, color, strokeArray) {
+  var outerRadius = _ref3.outerRadius,
+      innerRadius = _ref3.innerRadius;
   var borderWidth = outerRadius - innerRadius;
   var strokeData = strokeArray * -1;
   var containerAttributes = [["fill", "none"], ["stroke", color], ["stroke-width", borderWidth], ["stroke-dashoffset", "" + strokeData], ["stroke-dasharray", "" + strokeArray], ["class", "path-container"]];
-  var arc = createArc(containerAttributes, point, angles, innerRadius);
-  return arc;
+  return createArc(containerAttributes, point, angles, innerRadius);
 }
 
 function createArcAnimation(strokeArray, duration) {
@@ -227,7 +229,7 @@ function createArcAnimation(strokeArray, duration) {
   return animateElement;
 }
 function createOpacityAnimation(duration) {
-  var animateElement = createElement("animate", [["attributeName", "opacity"], ["from", "1"], ["to", "0"], ["dur", duration], ["begin", ".1s"], ["fill", "freeze"], ["repeatCount", "1"]]);
+  var animateElement = createElement("animate", [["attributeName", "opacity"], ["from", "1"], ["to", "0"], ["dur", duration], ["begin", ".5s"], ["fill", "freeze"], ["repeatCount", "1"]]);
   return animateElement;
 }
 function getBorderAnimation(_ref, _ref2, _ref3, backgroundColor, animationDurationInSeconds) {
@@ -237,13 +239,14 @@ function getBorderAnimation(_ref, _ref2, _ref3, backgroundColor, animationDurati
       outerRadius = _ref2.outerRadius;
   var startAngle = _ref3.startAngle,
       endAngle = _ref3.endAngle;
-  var strokeArray = 500;
+  var strokeArray = 900;
+  var adjustedAngle = 20;
   var animatedMaskArc = createArcForSlice({
     x: x,
     y: y
   }, {
-    startAngle: startAngle,
-    endAngle: endAngle
+    startAngle: startAngle - adjustedAngle,
+    endAngle: endAngle + adjustedAngle
   }, {
     innerRadius: innerRadius,
     outerRadius: outerRadius + 10
@@ -260,10 +263,20 @@ function getCenterTitleAnimation(_ref4, radius, backgroundColor, animationDurati
     x: x,
     y: y
   }, radius, backgroundColor);
-  var duration = animationDurationInSeconds + 0.5 + "s";
+  var duration = animationDurationInSeconds + 1 + "s";
   var animateElement = createOpacityAnimation(duration);
   animatedMaskCircle.appendChild(animateElement);
   return animatedMaskCircle;
+}
+function createHoverFilter() {
+  var filter = createElement("filter", [["id", "glowfilter"], ["filterUnits", "userSpaceOnUse"], ["x", "0"], ["y", "0"], ["width", "100%"], ["height", "100%"]]);
+  var desc = createElement("desc", []);
+  filter.appendChild(desc);
+  var fegaussianBlur = createElement("feMorphology", [["operator", "dilate"], ["radius", "2"]]);
+  filter.appendChild(fegaussianBlur);
+  var defs = createDefinitionBlock();
+  defs.appendChild(filter);
+  return defs;
 }
 
 var thicknessWithRatio = {
@@ -280,7 +293,7 @@ var sizeWithAngles = {
   M: [201, 520],
   S: [181, 540]
 };
-var chartStyles = "\n\n        a:hover .path-container {\n        cursor: pointer;\n            opacity: 0.5;\n            transition: all ease 0.3s;\n        }\n        a .path-container {\n        cursor: pointer;\n            opacity: 1.0;\n            transition: all ease 0.3s;\n        }\n\n    a .slice-container *{\n       cursor: pointer;\n        }\n\n";
+var chartStyles = "\n\n.horse-chart-tooltip::after {\n    content: \"\";\n    position: absolute;\n    top: 100%;\n    left: 50%;\n    margin-left: -5px;\n    border-width: 5px;\n    border-style: solid;\n    border-color: cornsilk transparent transparent transparent;\n}\n.tooltip-animation-on\n{\n    display: block;\n\n    -webkit-animation: fadeInFromNone 0.5s ease-out;\n    -moz-animation: fadeInFromNone 0.5s ease-out;\n    -o-animation: fadeInFromNone 0.5s ease-out;\n    animation: fadeInFromNone 0.5s ease-out;\n}\n@keyframes fadeInFromNone {\n    0% {\n        display: none;\n        opacity: 0;\n    }\n\n    1% {\n        display: block;\n        opacity: 0;\n    }\n\n    100% {\n        display: block;\n        opacity: 1;\n    }\n}\n.tooltip-animation-off\n{\n    display: block;\n\n    -webkit-animation: fadeOutFromNone 0.5s ease-out;\n    -moz-animation: fadeOutFromNone 0.5s ease-out;\n    -o-animation: fadeOutFromNone 0.5s ease-out;\n    animation: fadeOutFromNone 0.5s ease-out;\n}\n@keyframes fadeOutFromNone {\n    0% {\n        display: block;\n        opacity: 1;\n    }\n\n    1% {\n        display: block;\n        opacity: 0;\n    }\n\n    100% {\n        display: none;\n        opacity: 1;\n    }\n}\n\n  a:hover .path-container {\n    cursor: pointer;\n    transition: all 0.5s ease;\n   filter:url(#glowfilter) brightness(1.0);\n  }\n\n  a:hover text {\n    transition: all 0.5s ease;\n    cursor: pointer;\n    font-weight: bold;\n  }\n  a text {\n    transition: all 0.5s ease;\n    filter: ;\n    cursor: pointer;\n  }\n    a .path-container {\n\n      transition: all 0.5s ease;\n      filter: brightness(0.7);\n    }\n\n  foreignObject {\n    cursor: pointer;\n  }\n\n";
 
 function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
   var textPathDefinitionElement = createElement('defs', []);
@@ -328,10 +341,9 @@ function getSliceElement(angles, _ref, point, _ref2, _ref3, _ref4) {
   var labelSize = _ref3.labelSize;
   var id = _ref4.id;
   var containerId = 'box' + id;
-  var container = createElement('a', [['id', 'container' + containerId], ['class', 'slice-container'], ['style', 'text-decoration: none;']]);
-  var titleElement = createElement('title', []);
-  titleElement.innerHTML = label;
-  container.appendChild(titleElement);
+  var sliceAttributes = [['id', 'container' + containerId], ['class', 'slice-container'], ['style', 'text-decoration: none;']];
+  var container = createElement('a', sliceAttributes);
+  container.appendChild(createTitle(label));
   var arc = createArcForSlice(point, angles, {
     innerRadius: innerRadius,
     outerRadius: outerRadius
@@ -371,8 +383,22 @@ function getTitleContainer(_ref, radius, imgUrl, title, textColor) {
   return foreignObject;
 }
 
+function getPoint(totalSize) {
+  var x = totalSize / 2;
+  var y = totalSize / 2;
+  return {
+    x: x,
+    y: y
+  };
+}
+
+function getChartStyleElement() {
+  var styleElement = createElement("style", []);
+  styleElement.innerHTML = chartStyles;
+  return styleElement;
+}
+
 function HorseShoeChartCreator(items, options) {
-  insertStyles(chartStyles);
   var defaultOptions = {
     radius: 100,
     showAnimation: true,
@@ -402,8 +428,11 @@ function HorseShoeChartCreator(items, options) {
       labelColor = formattedOptions.labelColor;
   var thicknessOfCircle = thicknessWithRatio[thicknessSize];
   var totalSize = (radius + thicknessOfCircle) * 2;
-  var x = totalSize / 2;
-  var y = totalSize / 2;
+
+  var _getPoint = getPoint(totalSize),
+      x = _getPoint.x,
+      y = _getPoint.y;
+
   var outerRadius = radius + thicknessOfCircle;
   var sizeWithAngle = sizeWithAngles[gapSize];
   var startAngle = sizeWithAngle[0],
@@ -414,9 +443,16 @@ function HorseShoeChartCreator(items, options) {
     return percent * total;
   };
 
-  var container = createElement("g", []);
+  var container = createGroupElement();
+  var centerTitleContainer = getTitleContainer({
+    x: x,
+    y: y
+  }, radius, imgUrl, title, titleColor);
+  container.appendChild(centerTitleContainer);
   var currentAngle = startAngle;
   var formattedItems = formatItems(items, labelColor);
+  var filterElement = createHoverFilter();
+  container.appendChild(filterElement);
   formattedItems.forEach(function (item, index) {
     var percentage = item.percentage,
         id = item.id,
@@ -441,11 +477,6 @@ function HorseShoeChartCreator(items, options) {
     container.appendChild(currentBoxElement);
     currentAngle = endAngle;
   });
-  var htmlContainerElement = getTitleContainer({
-    x: x,
-    y: y
-  }, radius, imgUrl, title, titleColor);
-  container.appendChild(htmlContainerElement);
 
   if (showAnimation) {
     var borderAnimation = getBorderAnimation({
@@ -466,13 +497,14 @@ function HorseShoeChartCreator(items, options) {
     container.appendChild(centerTitleAnimation);
 
     centerTitleAnimation.querySelector("animate").onend = function () {
-      console.log("animate end");
       container.removeChild(centerTitleAnimation);
       container.removeChild(borderAnimation);
     };
   }
 
-  var root = createElement("svg", [["width", totalSize], ["height", totalSize]]);
+  var root = createSVGRoot(totalSize);
+  var styleElement = getChartStyleElement();
+  root.appendChild(styleElement);
   root.appendChild(container);
   return root;
 }

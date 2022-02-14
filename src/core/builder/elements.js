@@ -49,3 +49,24 @@ export function createCircle({ x, y }, radius, defaultcolor) {
     ['fill', defaultcolor]
   ])
 }
+
+export function createDefinitionBlock() {
+  return createElement("defs", []);
+}
+
+export function createGroupElement() {
+  return createElement("g", []);
+}
+
+export function createSVGRoot(totalSize) {
+  return createElement("svg", [
+    ["width", totalSize],
+    ["height", totalSize]
+  ]);
+}
+
+export function createTitle(label) {
+  const titleElement = createElement("title", []);
+  titleElement.innerHTML = label;
+  return titleElement;
+}

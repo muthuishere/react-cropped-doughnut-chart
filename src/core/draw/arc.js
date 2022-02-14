@@ -29,31 +29,6 @@ export function coordinatesForArc(
   return d;
 }
 
-/** draw Circle with Path
- *
- * @param containerAttributes
- * @param point
- * @param angles
- * @param radius
- * @returns {*}
- */
-
-
-export function coordinatesForCircle(
-  { x, y },
-  radius
-) {
-
-
-
-  const d = [
-    "M", x-radius, y,
-    "A", radius, radius, 0, 1, 0, (radius *2), 0,
-    "A", radius, radius, 0, 1, 0, -(radius *2), 0,
-  ].join(" ");
-
-  return d;
-}
 
 export function createArc(containerAttributes, point, angles, radius) {
   const innerArc = createElement("path", containerAttributes);
@@ -80,7 +55,5 @@ export function createArcForSlice(
     ["class", "path-container"]
   ];
 
-  const arc = createArc(containerAttributes, point, angles, innerRadius);
-
-  return arc;
+  return createArc(containerAttributes, point, angles, innerRadius);
 }

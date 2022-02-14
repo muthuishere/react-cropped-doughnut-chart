@@ -1,14 +1,27 @@
-import { createElement, insertStyles } from "./builder/elements";
+import { createElement, createGroupElement, createSVGRoot } from "./builder/elements";
 
 import { formatItems } from "./shared/formatter";
-import { getBorderAnimation, getCenterTitleAnimation } from "./components/Animator";
+import { createHoverFilter, getBorderAnimation, getCenterTitleAnimation } from "./components/Animator";
 import { chartStyles, sizeWithAngles, thicknessWithRatio } from "./shared/config";
 import { getSliceElement } from "./components/Slice";
 import { getTitleContainer } from "./components/TitleContainer";
 
 
+function getPoint(totalSize){
+
+  const x = totalSize / 2;
+  const y = totalSize / 2;
+  return {x, y };
+}
+
+function getChartStyleElement() {
+  const styleElement = createElement("style", []);
+  styleElement.innerHTML = chartStyles;
+  return styleElement;
+}
+
 export function HorseShoeChartCreator(items, options) {
-  insertStyles(chartStyles);
+  // insertStyles(chartStyles);
   const defaultOptions = {
     radius: 100,
     showAnimation: true,
@@ -29,6 +42,7 @@ export function HorseShoeChartCreator(items, options) {
   const {
     radius,
     title,
+    showGlow,
     thicknessSize,
     showAnimation,
     animationDurationInSeconds,
@@ -41,42 +55,19 @@ export function HorseShoeChartCreator(items, options) {
   } = formattedOptions;
   const thicknessOfCircle = thicknessWithRatio[thicknessSize];
   const totalSize = (radius + thicknessOfCircle) * 2;
-  const x = totalSize / 2;
-  const y = totalSize / 2;
+
+  const {x,y} = getPoint(totalSize);
+
   const outerRadius = radius + thicknessOfCircle;
   const sizeWithAngle = sizeWithAngles[gapSize];
   const [startAngle, endAngle] = sizeWithAngle;
   const total = (endAngle - startAngle) / 100;
   const percentageToDegree = (percent) => percent * total;
 
-  const container = createElement("g", []);
+  const container = createGroupElement();
 
 
-  let currentAngle = startAngle;
-
-  const formattedItems = formatItems(items, labelColor);
-
-
-  formattedItems.forEach((item, index) => {
-    const { label, value, color, percentage, id, previousId } = item;
-
-
-    const endAngle = currentAngle + percentageToDegree(percentage);
-
-    const currentBoxElement = getSliceElement(
-      { startAngle: currentAngle, endAngle },
-      item,
-      { x, y },
-      { innerRadius: radius, outerRadius: outerRadius },
-      { labelSize, labelColor },
-      { id, previousId }
-    );
-
-    container.appendChild(currentBoxElement);
-    currentAngle = endAngle;
-  });
-
-  const htmlContainerElement = getTitleContainer(
+  const centerTitleContainer = getTitleContainer(
     { x, y },
     radius,
     imgUrl,
@@ -85,7 +76,35 @@ export function HorseShoeChartCreator(items, options) {
   );
 
 
-  container.appendChild(htmlContainerElement);
+  container.appendChild(centerTitleContainer);
+
+  let currentAngle = startAngle;
+
+  const formattedItems = formatItems(items, labelColor);
+
+
+
+  const filterElement=createHoverFilter()
+  container.appendChild(filterElement)
+
+
+
+
+  formattedItems.forEach((item, index) => {
+    const {  percentage, id, previousId } = item;
+    const endAngle = currentAngle + percentageToDegree(percentage);
+
+
+    const currentBoxElement = getSliceElement({ startAngle: currentAngle, endAngle }, item, {
+      x,
+      y
+    }, { innerRadius: radius, outerRadius: outerRadius }, { labelSize, labelColor }, { id, previousId });
+
+    container.appendChild(currentBoxElement);
+    currentAngle = endAngle;
+  });
+
+
 
 
   if (showAnimation) {
@@ -101,8 +120,7 @@ export function HorseShoeChartCreator(items, options) {
     const centerTitleAnimation = getCenterTitleAnimation({ x, y }, radius, backgroundColor,animationDurationInSeconds);
     container.appendChild(centerTitleAnimation);
     centerTitleAnimation.querySelector("animate").onend = () => {
-      // animatedMaskCircle.parent.removeChild(animatedMaskCircle);
-      console.log("animate end")
+
       container.removeChild(centerTitleAnimation);
       container.removeChild(borderAnimation);
     }
@@ -110,10 +128,9 @@ export function HorseShoeChartCreator(items, options) {
   }
 
 
-  const root = createElement("svg", [
-    ["width", totalSize],
-    ["height", totalSize]
-  ]);
+  const root = createSVGRoot(totalSize);
+  const styleElement = getChartStyleElement();
+  root.appendChild(styleElement);
   root.appendChild(container);
 
   return root;

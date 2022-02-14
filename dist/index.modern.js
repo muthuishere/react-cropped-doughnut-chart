@@ -12,17 +12,6 @@ function createHtmlElement(name, attribs) {
   attribs.forEach(([name, value]) => element.setAttribute(name, value));
   return element;
 }
-function insertStyles(styles) {
-  if (document.head.querySelector("#doughnut-cropped-chart-styles")) {
-    return;
-  }
-
-  var styleSheet = document.createElement('style');
-  styleSheet.setAttribute('type', 'text/css');
-  styleSheet.setAttribute('id', 'doughnut-cropped-chart-styles');
-  styleSheet.innerHTML = styles;
-  document.head.appendChild(styleSheet);
-}
 function createContainer() {
   const container = createElement('g', []);
   return container;
@@ -32,6 +21,20 @@ function createCircle({
   y
 }, radius, defaultcolor) {
   return createElement('circle', [['cx', x], ['cy', y], ['r', radius], ['fill', defaultcolor]]);
+}
+function createDefinitionBlock() {
+  return createElement("defs", []);
+}
+function createGroupElement() {
+  return createElement("g", []);
+}
+function createSVGRoot(totalSize) {
+  return createElement("svg", [["width", totalSize], ["height", totalSize]]);
+}
+function createTitle(label) {
+  const titleElement = createElement("title", []);
+  titleElement.innerHTML = label;
+  return titleElement;
 }
 
 function getRandomSixDigitString() {
@@ -193,8 +196,7 @@ function createArcForSlice(point, angles, {
   const borderWidth = outerRadius - innerRadius;
   const strokeData = strokeArray * -1;
   const containerAttributes = [["fill", "none"], ["stroke", color], ["stroke-width", borderWidth], ["stroke-dashoffset", "" + strokeData], ["stroke-dasharray", "" + strokeArray], ["class", "path-container"]];
-  const arc = createArc(containerAttributes, point, angles, innerRadius);
-  return arc;
+  return createArc(containerAttributes, point, angles, innerRadius);
 }
 
 function createArcAnimation(strokeArray, duration = "2s") {
@@ -202,7 +204,7 @@ function createArcAnimation(strokeArray, duration = "2s") {
   return animateElement;
 }
 function createOpacityAnimation(duration) {
-  const animateElement = createElement("animate", [["attributeName", "opacity"], ["from", "1"], ["to", "0"], ["dur", duration], ["begin", ".1s"], ["fill", "freeze"], ["repeatCount", "1"]]);
+  const animateElement = createElement("animate", [["attributeName", "opacity"], ["from", "1"], ["to", "0"], ["dur", duration], ["begin", ".5s"], ["fill", "freeze"], ["repeatCount", "1"]]);
   return animateElement;
 }
 function getBorderAnimation({
@@ -215,13 +217,14 @@ function getBorderAnimation({
   startAngle,
   endAngle
 }, backgroundColor, animationDurationInSeconds) {
-  const strokeArray = 500;
+  const strokeArray = 900;
+  let adjustedAngle = 20;
   const animatedMaskArc = createArcForSlice({
     x,
     y
   }, {
-    startAngle,
-    endAngle
+    startAngle: startAngle - adjustedAngle,
+    endAngle: endAngle + adjustedAngle
   }, {
     innerRadius,
     outerRadius: outerRadius + 10
@@ -239,10 +242,20 @@ function getCenterTitleAnimation({
     x,
     y
   }, radius, backgroundColor);
-  const duration = animationDurationInSeconds + 0.5 + "s";
+  const duration = animationDurationInSeconds + 1 + "s";
   const animateElement = createOpacityAnimation(duration);
   animatedMaskCircle.appendChild(animateElement);
   return animatedMaskCircle;
+}
+function createHoverFilter() {
+  const filter = createElement("filter", [["id", "glowfilter"], ["filterUnits", "userSpaceOnUse"], ["x", "0"], ["y", "0"], ["width", "100%"], ["height", "100%"]]);
+  const desc = createElement("desc", []);
+  filter.appendChild(desc);
+  const fegaussianBlur = createElement("feMorphology", [["operator", "dilate"], ["radius", "2"]]);
+  filter.appendChild(fegaussianBlur);
+  const defs = createDefinitionBlock();
+  defs.appendChild(filter);
+  return defs;
 }
 
 const thicknessWithRatio = {
@@ -261,20 +274,92 @@ const sizeWithAngles = {
 };
 const chartStyles = `
 
-        a:hover .path-container {
-        cursor: pointer;
-            opacity: 0.5;
-            transition: all ease 0.3s;
-        }
-        a .path-container {
-        cursor: pointer;
-            opacity: 1.0;
-            transition: all ease 0.3s;
-        }
+.horse-chart-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: cornsilk transparent transparent transparent;
+}
+.tooltip-animation-on
+{
+    display: block;
 
-    a .slice-container *{
-       cursor: pointer;
-        }
+    -webkit-animation: fadeInFromNone 0.5s ease-out;
+    -moz-animation: fadeInFromNone 0.5s ease-out;
+    -o-animation: fadeInFromNone 0.5s ease-out;
+    animation: fadeInFromNone 0.5s ease-out;
+}
+@keyframes fadeInFromNone {
+    0% {
+        display: none;
+        opacity: 0;
+    }
+
+    1% {
+        display: block;
+        opacity: 0;
+    }
+
+    100% {
+        display: block;
+        opacity: 1;
+    }
+}
+.tooltip-animation-off
+{
+    display: block;
+
+    -webkit-animation: fadeOutFromNone 0.5s ease-out;
+    -moz-animation: fadeOutFromNone 0.5s ease-out;
+    -o-animation: fadeOutFromNone 0.5s ease-out;
+    animation: fadeOutFromNone 0.5s ease-out;
+}
+@keyframes fadeOutFromNone {
+    0% {
+        display: block;
+        opacity: 1;
+    }
+
+    1% {
+        display: block;
+        opacity: 0;
+    }
+
+    100% {
+        display: none;
+        opacity: 1;
+    }
+}
+
+  a:hover .path-container {
+    cursor: pointer;
+    transition: all 0.5s ease;
+   filter:url(#glowfilter) brightness(1.0);
+  }
+
+  a:hover text {
+    transition: all 0.5s ease;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  a text {
+    transition: all 0.5s ease;
+    filter: ;
+    cursor: pointer;
+  }
+    a .path-container {
+
+      transition: all 0.5s ease;
+      filter: brightness(0.7);
+    }
+
+  foreignObject {
+    cursor: pointer;
+  }
 
 `;
 
@@ -332,10 +417,9 @@ function getSliceElement(angles, {
   previousId
 }) {
   const containerId = 'box' + id;
-  const container = createElement('a', [['id', 'container' + containerId], ['class', 'slice-container'], ['style', 'text-decoration: none;']]);
-  const titleElement = createElement('title', []);
-  titleElement.innerHTML = label;
-  container.appendChild(titleElement);
+  let sliceAttributes = [['id', 'container' + containerId], ['class', 'slice-container'], ['style', 'text-decoration: none;']];
+  const container = createElement('a', sliceAttributes);
+  container.appendChild(createTitle(label));
   const arc = createArcForSlice(point, angles, {
     innerRadius,
     outerRadius
@@ -376,8 +460,22 @@ function getTitleContainer({
   return foreignObject;
 }
 
+function getPoint(totalSize) {
+  const x = totalSize / 2;
+  const y = totalSize / 2;
+  return {
+    x,
+    y
+  };
+}
+
+function getChartStyleElement() {
+  const styleElement = createElement("style", []);
+  styleElement.innerHTML = chartStyles;
+  return styleElement;
+}
+
 function HorseShoeChartCreator(items, options) {
-  insertStyles(chartStyles);
   const defaultOptions = {
     radius: 100,
     showAnimation: true,
@@ -397,6 +495,7 @@ function HorseShoeChartCreator(items, options) {
   const {
     radius,
     title,
+    showGlow,
     thicknessSize,
     showAnimation,
     animationDurationInSeconds,
@@ -409,8 +508,10 @@ function HorseShoeChartCreator(items, options) {
   } = formattedOptions;
   const thicknessOfCircle = thicknessWithRatio[thicknessSize];
   const totalSize = (radius + thicknessOfCircle) * 2;
-  const x = totalSize / 2;
-  const y = totalSize / 2;
+  const {
+    x,
+    y
+  } = getPoint(totalSize);
   const outerRadius = radius + thicknessOfCircle;
   const sizeWithAngle = sizeWithAngles[gapSize];
   const [startAngle, endAngle] = sizeWithAngle;
@@ -418,14 +519,18 @@ function HorseShoeChartCreator(items, options) {
 
   const percentageToDegree = percent => percent * total;
 
-  const container = createElement("g", []);
+  const container = createGroupElement();
+  const centerTitleContainer = getTitleContainer({
+    x,
+    y
+  }, radius, imgUrl, title, titleColor);
+  container.appendChild(centerTitleContainer);
   let currentAngle = startAngle;
   const formattedItems = formatItems(items, labelColor);
+  const filterElement = createHoverFilter();
+  container.appendChild(filterElement);
   formattedItems.forEach((item, index) => {
     const {
-      label,
-      value,
-      color,
       percentage,
       id,
       previousId
@@ -450,11 +555,6 @@ function HorseShoeChartCreator(items, options) {
     container.appendChild(currentBoxElement);
     currentAngle = endAngle;
   });
-  const htmlContainerElement = getTitleContainer({
-    x,
-    y
-  }, radius, imgUrl, title, titleColor);
-  container.appendChild(htmlContainerElement);
 
   if (showAnimation) {
     const borderAnimation = getBorderAnimation({
@@ -475,13 +575,14 @@ function HorseShoeChartCreator(items, options) {
     container.appendChild(centerTitleAnimation);
 
     centerTitleAnimation.querySelector("animate").onend = () => {
-      console.log("animate end");
       container.removeChild(centerTitleAnimation);
       container.removeChild(borderAnimation);
     };
   }
 
-  const root = createElement("svg", [["width", totalSize], ["height", totalSize]]);
+  const root = createSVGRoot(totalSize);
+  const styleElement = getChartStyleElement();
+  root.appendChild(styleElement);
   root.appendChild(container);
   return root;
 }

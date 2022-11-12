@@ -1,3 +1,5 @@
+import { getRandomSixDigitString } from './randomizer'
+
 const colors = [
   '#FF0000',
   '#FF7F00',
@@ -7,6 +9,7 @@ const colors = [
   '#0000FF',
   '#8B00FF'
 ]
+
 function formatLabel(item) {
   const { label } = item
   if (label) return item
@@ -36,20 +39,22 @@ export function formatToArrayOfObjects(inputItems) {
   }
   return items
 }
+
 export function reverseString(str) {
-  return str.split("").reverse().join("");
+  return str.split('').reverse().join('')
 }
+
 export function formatItems(inputItems, defaultLabelColor) {
   const items = formatToArrayOfObjects(inputItems)
 
-  const hasValueProperty = (currentValue) => null != currentValue.value
+  const hasValueProperty = (currentValue) => currentValue.value != null
   const isAllValid = items.every(hasValueProperty)
   if (!isAllValid) {
     throw new Error('Invalid Data Found, All items must have a value property')
   }
 
-
-  const formatLabelColorWithDefault =(item)=>formatLabelColor(item, defaultLabelColor)
+  const formatLabelColorWithDefault = (item) =>
+    formatLabelColor(item, defaultLabelColor)
 
   const total = items.reduce((acc, item) => acc + item.value, 0)
   return items
@@ -60,13 +65,36 @@ export function formatItems(inputItems, defaultLabelColor) {
     .map(formatLabel)
     .map(formatColor)
     .map(formatLabelColorWithDefault)
+    .map(formatSliceId)
+    .map(formatSlicePreviousId)
 }
- function formatLabelColor(item,defaultLabelColor) {
+
+export function formatLabelColor(item, defaultLabelColor) {
+  return {
+    ...{ labelColor: defaultLabelColor },
+    ...item
+  }
+}
+
+export function formatSliceId(item) {
+  const { value } = item
+
+  const id = value + '' + getRandomSixDigitString()
 
   return {
-      ...{labelColor:defaultLabelColor},
-      ...item
-    }
-
+    ...{ id: id },
+    ...item
+  }
 }
+export function formatSlicePreviousId(item, index, array) {
+  // console.log(index)
+  // console.log(array)
 
+  const previousItem = array[index - 1]
+  const { id: previousId } = previousItem || { id: null }
+
+  return {
+    ...{ previousId: previousId },
+    ...item
+  }
+}

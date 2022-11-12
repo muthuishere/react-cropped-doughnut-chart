@@ -1,7 +1,7 @@
-import { createElement, createHtmlElement } from './elements'
+import { createElement, createHtmlElement } from '../builder/elements'
 
 export const PADDING_RATIO = 0.8
-export function getHtmlContainerElement({ x, y }, radius, imgUrl, title, textColor) {
+export function getTitleContainer({ x, y }, radius, imgUrl, title, textColor) {
   // let {x,y} = polarToCartesian(centerX, centerY, radius, 90);
 
   const mainElement = createHtmlElement('div', [

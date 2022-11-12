@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { DoughnutElement } from "./core/DoughnutElement";
+import { HorseShoeChartCreator } from "./core/HorseShoeChartCreator";
 
-export const CroppedDoughnutChart = ({ items,options }) => {
+export const HorseShoeChart = ({ items,options }) => {
 
 
   const svg = useRef(null);
@@ -10,16 +10,21 @@ export const CroppedDoughnutChart = ({ items,options }) => {
   useEffect(() => {
 
 
-
-
-    const result= DoughnutElement(items,options )
+    const result= HorseShoeChartCreator(items,options )
 
     if(svg.current){
-      svg.current.appendChild(result)
+
+
+
+      if(svg.current.children.length>0){
+        svg.current.removeChild(svg.current.children[0])
+      }
+       svg.current.appendChild(result)
+      // svg.current.parentNode.replaceChild(result, svg.current);
     }
 
 
-  }, [])
+  }, [items,options])
 
   // return   <div dangerouslySetInnerHTML={{ __html: state }} />
   return   <div ref={svg}/>

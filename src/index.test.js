@@ -1,7 +1,7 @@
-import { CroppedDoughnutChart } from '.'
+import { HorseShoeChart } from '.'
 
 describe('ExampleComponent', () => {
   it('is truthy', () => {
-    expect(CroppedDoughnutChart).toBeTruthy()
+    expect(HorseShoeChart).toBeTruthy()
   })
 })

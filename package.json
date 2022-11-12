@@ -1,6 +1,6 @@
 {
   "name": "react-cropped-doughnut-chart",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A cropped doughnutchart, with customizable image and text on center",
   "author": "muthuishere",
   "license": "MIT",
@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "microbundle-crl --no-compress --format modern,cjs",
-    "build-js": "browserify -p esmify ./src/core/DoughnutElement.js --standalone CroppedDoughnutChart -o example/public/js/cropped-doughnut-chart.js",
+    "build-js": "browserify -p esmify src/core/HorseShoeChartCreator.js --standalone CroppedDoughnutChart -o example/public/js/cropped-doughnut-chart.js",
     "start": "microbundle-crl watch --no-compress --format modern,cjs",
     "prepare": "run-s build",
     "test": "run-s test:unit test:build",

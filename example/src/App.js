@@ -76,6 +76,10 @@ function DynamicImage()  {
     <div className="container">
       <div className="row">
         <div className="col-6">
+          <HorseShoeChart items={items} options={options} />
+        </div>
+        <div className="col-6">
+          <h3> Change values to see in action</h3>
           <form onSubmit={formik.handleSubmit}>
 
             {Object.keys(defaultOptions).map((key) => (
@@ -90,9 +94,7 @@ function DynamicImage()  {
 
           </form>
         </div>
-        <div className="col-6">
-          <HorseShoeChart items={items} options={options} />
-        </div>
+
       </div>
     </div>
     )
@@ -107,6 +109,7 @@ const App = () => {
 
   return <div className="container">
 
+    <h2>React Doughnut chart demo</h2>
       <DynamicImage/>
       <hr/>
 

@@ -23,16 +23,16 @@ function createCircle({
   return createElement('circle', [['cx', x], ['cy', y], ['r', radius], ['fill', defaultcolor]]);
 }
 function createDefinitionBlock() {
-  return createElement("defs", []);
+  return createElement('defs', []);
 }
 function createGroupElement() {
-  return createElement("g", []);
+  return createElement('g', []);
 }
 function createSVGRoot(totalSize) {
-  return createElement("svg", [["width", totalSize], ["height", totalSize]]);
+  return createElement('svg', [['width', totalSize], ['height', totalSize]]);
 }
 function createTitle(label) {
-  const titleElement = createElement("title", []);
+  const titleElement = createElement('title', []);
   titleElement.innerHTML = label;
   return titleElement;
 }
@@ -42,7 +42,7 @@ function getRandomSixDigitString() {
   return str.padStart(6, "0");
 }
 
-const colors = ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#8B00FF"];
+const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#8B00FF'];
 
 function formatLabel(item) {
   const {
@@ -63,7 +63,7 @@ function formatColor(item, index) {
 }
 
 function formatToArrayOfObjects(inputItems) {
-  const isNumber = currentValue => typeof currentValue === "number";
+  const isNumber = currentValue => typeof currentValue === 'number';
 
   const isAllNumbers = inputItems.every(isNumber);
   let items = inputItems;
@@ -77,17 +77,17 @@ function formatToArrayOfObjects(inputItems) {
   return items;
 }
 function reverseString(str) {
-  return str.split("").reverse().join("");
+  return str.split('').reverse().join('');
 }
 function formatItems(inputItems, defaultLabelColor) {
   const items = formatToArrayOfObjects(inputItems);
 
-  const hasValueProperty = currentValue => null != currentValue.value;
+  const hasValueProperty = currentValue => currentValue.value != null;
 
   const isAllValid = items.every(hasValueProperty);
 
   if (!isAllValid) {
-    throw new Error("Invalid Data Found, All items must have a value property");
+    throw new Error('Invalid Data Found, All items must have a value property');
   }
 
   const formatLabelColorWithDefault = item => formatLabelColor(item, defaultLabelColor);
@@ -199,12 +199,12 @@ function createArcForSlice(point, angles, {
   return createArc(containerAttributes, point, angles, innerRadius);
 }
 
-function createArcAnimation(strokeArray, duration = "2s") {
-  const animateElement = createElement("animate", [["attributeType", "CSS"], ["attributeName", "stroke-dashoffset"], ["values", "0;" + strokeArray], ["dur", duration], ["fill", "freeze"]]);
+function createArcAnimation(strokeArray, duration = '2s') {
+  const animateElement = createElement('animate', [['attributeType', 'CSS'], ['attributeName', 'stroke-dashoffset'], ['values', '0;' + strokeArray], ['dur', duration], ['fill', 'freeze']]);
   return animateElement;
 }
 function createOpacityAnimation(duration) {
-  const animateElement = createElement("animate", [["attributeName", "opacity"], ["from", "1"], ["to", "0"], ["dur", duration], ["begin", ".5s"], ["fill", "freeze"], ["repeatCount", "1"]]);
+  const animateElement = createElement('animate', [['attributeName', 'opacity'], ['from', '1'], ['to', '0'], ['dur', duration], ['begin', '.5s'], ['fill', 'freeze'], ['repeatCount', '1']]);
   return animateElement;
 }
 function getBorderAnimation({
@@ -218,7 +218,7 @@ function getBorderAnimation({
   endAngle
 }, backgroundColor, animationDurationInSeconds) {
   const strokeArray = 900;
-  let adjustedAngle = 20;
+  const adjustedAngle = 20;
   const animatedMaskArc = createArcForSlice({
     x,
     y
@@ -229,8 +229,8 @@ function getBorderAnimation({
     innerRadius,
     outerRadius: outerRadius + 10
   }, backgroundColor, strokeArray);
-  animatedMaskArc.setAttribute("stroke-dashoffset", "0");
-  const animateElement = createArcAnimation(strokeArray, animationDurationInSeconds + "s");
+  animatedMaskArc.setAttribute('stroke-dashoffset', '0');
+  const animateElement = createArcAnimation(strokeArray, animationDurationInSeconds + 's');
   animatedMaskArc.appendChild(animateElement);
   return animatedMaskArc;
 }
@@ -242,16 +242,16 @@ function getCenterTitleAnimation({
     x,
     y
   }, radius, backgroundColor);
-  const duration = animationDurationInSeconds + 1 + "s";
+  const duration = animationDurationInSeconds + 1 + 's';
   const animateElement = createOpacityAnimation(duration);
   animatedMaskCircle.appendChild(animateElement);
   return animatedMaskCircle;
 }
 function createHoverFilter() {
-  const filter = createElement("filter", [["id", "glowfilter"], ["filterUnits", "userSpaceOnUse"], ["x", "0"], ["y", "0"], ["width", "100%"], ["height", "100%"]]);
-  const desc = createElement("desc", []);
+  const filter = createElement('filter', [['id', 'glowfilter'], ['filterUnits', 'userSpaceOnUse'], ['x', '0'], ['y', '0'], ['width', '100%'], ['height', '100%']]);
+  const desc = createElement('desc', []);
   filter.appendChild(desc);
-  const fegaussianBlur = createElement("feMorphology", [["operator", "dilate"], ["radius", "2"]]);
+  const fegaussianBlur = createElement('feMorphology', [['operator', 'dilate'], ['radius', '2']]);
   filter.appendChild(fegaussianBlur);
   const defs = createDefinitionBlock();
   defs.appendChild(filter);
@@ -373,6 +373,30 @@ const chartStyles = `
     }
 }
 
+
+  foreignObject {
+    cursor: pointer;
+  }
+
+  a text {
+    transition: all 0.5s ease;
+    filter: ;
+    cursor: pointer;
+  }
+    a .path-container {
+
+      transition: all 0.5s ease;
+      filter: brightness(0.7);
+    }
+   a:hover .path-container {
+    cursor: pointer;
+    transition: all 0.5s ease;
+   filter:brightness(0.8);
+  }
+
+`;
+const hoverStyles = `
+
   a:hover .path-container {
     cursor: pointer;
     transition: all 0.5s ease;
@@ -384,21 +408,6 @@ const chartStyles = `
     cursor: pointer;
     font-weight: bold;
   }
-  a text {
-    transition: all 0.5s ease;
-    filter: ;
-    cursor: pointer;
-  }
-    a .path-container {
-
-      transition: all 0.5s ease;
-      filter: brightness(0.7);
-    }
-
-  foreignObject {
-    cursor: pointer;
-  }
-
 `;
 
 function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
@@ -455,7 +464,7 @@ function getSliceElement(angles, {
   previousId
 }) {
   const containerId = 'box' + id;
-  let sliceAttributes = [['id', 'container' + containerId], ['class', 'slice-container'], ['style', 'text-decoration: none;']];
+  const sliceAttributes = [['id', 'container' + containerId], ['class', 'slice-container'], ['style', 'text-decoration: none;']];
   const container = createElement('a', sliceAttributes);
   container.appendChild(createTitle(label));
   const arc = createArcForSlice(point, angles, {
@@ -507,28 +516,40 @@ function getPoint(totalSize) {
   };
 }
 
-function getChartStyleElement() {
-  const styleElement = createElement("style", []);
-  styleElement.innerHTML = chartStyles;
+function getChartStyleElement({
+  showGlow
+}) {
+  let result = "";
+  if (showGlow) result = hoverStyles;
+  const styleElement = createElement('style', []);
+  styleElement.innerHTML = result + chartStyles;
   return styleElement;
 }
 
 function HorseShoeChartCreator(items, options) {
   const defaultOptions = {
     radius: 100,
-    showAnimation: true,
-    animationDurationInSeconds: 2,
-    title: "",
-    titleColor: "#FF0000",
-    thicknessSize: "M",
-    gapSize: "XL",
+    showAnimation: false,
+    animationDurationInSeconds: 5,
+    title: '',
+    titleColor: '#FF0000',
+    thicknessSize: 'M',
+    gapSize: 'XL',
+    showGlow: false,
     labelSize: 12,
-    labelColor: "white",
-    backgroundColor: "white",
-    imgUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+    labelColor: 'white',
+    backgroundColor: 'white',
+    imageUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
   };
-  const formattedOptions = { ...defaultOptions,
+  const mergedOptions = { ...defaultOptions,
     ...options
+  };
+  const formattedOptions = { ...mergedOptions,
+    showAnimation: String(mergedOptions.showAnimation) === 'true',
+    showGlow: String(mergedOptions.showGlow) === 'true',
+    radius: Number(mergedOptions.radius),
+    animationDurationInSeconds: Number(mergedOptions.animationDurationInSeconds),
+    labelSize: Number(mergedOptions.labelSize)
   };
   const {
     radius,
@@ -539,7 +560,7 @@ function HorseShoeChartCreator(items, options) {
     animationDurationInSeconds,
     gapSize,
     backgroundColor,
-    imgUrl,
+    imageUrl,
     titleColor,
     labelSize,
     labelColor
@@ -561,12 +582,17 @@ function HorseShoeChartCreator(items, options) {
   const centerTitleContainer = getTitleContainer({
     x,
     y
-  }, radius, imgUrl, title, titleColor);
+  }, radius, imageUrl, title, titleColor);
   container.appendChild(centerTitleContainer);
   let currentAngle = startAngle;
   const formattedItems = formatItems(items, labelColor);
-  const filterElement = createHoverFilter();
-  container.appendChild(filterElement);
+
+  if (showGlow) {
+    console.log('showGlow');
+    const filterElement = createHoverFilter();
+    container.appendChild(filterElement);
+  }
+
   formattedItems.forEach((item, index) => {
     const {
       percentage,
@@ -612,14 +638,16 @@ function HorseShoeChartCreator(items, options) {
     }, radius, backgroundColor, animationDurationInSeconds);
     container.appendChild(centerTitleAnimation);
 
-    centerTitleAnimation.querySelector("animate").onend = () => {
+    centerTitleAnimation.querySelector('animate').onend = () => {
       container.removeChild(centerTitleAnimation);
       container.removeChild(borderAnimation);
     };
   }
 
   const root = createSVGRoot(totalSize);
-  const styleElement = getChartStyleElement();
+  const styleElement = getChartStyleElement({
+    showGlow
+  });
   root.appendChild(styleElement);
   root.appendChild(container);
   return root;
@@ -634,9 +662,13 @@ const HorseShoeChart = ({
     const result = HorseShoeChartCreator(items, options);
 
     if (svg.current) {
+      if (svg.current.children.length > 0) {
+        svg.current.removeChild(svg.current.children[0]);
+      }
+
       svg.current.appendChild(result);
     }
-  }, []);
+  }, [items, options]);
   return /*#__PURE__*/React.createElement("div", {
     ref: svg
   });

@@ -14,41 +14,41 @@
         }
     </style>
 </head>
-    
+
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="..\..\index.html">All files</a> / <a href="index.html">src/core</a> HtmlContainerElement.js</h1>
         <div class='clearfix'>
-            
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>17/17</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/0</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>1/1</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>17/17</span>
             </div>
-        
-            
+
+
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -155,7 +155,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { createElement, createHtmlElement } from './elements'
 &nbsp;
 export const PADDING_RATIO = 0.8
-export function getHtmlContainerElement({ x, y }, radius, imgUrl, title, textColor) {
+export function getHtmlContainerElement({ x, y }, radius, imageUrl, title, textColor) {
   // let {x,y} = polarToCartesian(centerX, centerY, radius, 90);
 &nbsp;
   const mainElement = createHtmlElement('div', [
@@ -169,7 +169,7 @@ export function getHtmlContainerElement({ x, y }, radius, imgUrl, title, textCol
   const paddedRadius = radius * PADDING_RATIO
 &nbsp;
   const imgElement = createHtmlElement('img', [
-    ['src', imgUrl],
+    ['src', imageUrl],
     ['width', paddedRadius],
     ['height', paddedRadius]
   ])
@@ -220,4 +220,3 @@ export function getHtmlContainerElement({ x, y }, radius, imgUrl, title, textCol
         <script src="..\..\block-navigation.js"></script>
     </body>
 </html>
-    

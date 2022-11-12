@@ -14,11 +14,17 @@ export const HorseShoeChart = ({ items,options }) => {
 
     if(svg.current){
 
-      svg.current.appendChild(result)
+
+
+      if(svg.current.children.length>0){
+        svg.current.removeChild(svg.current.children[0])
+      }
+       svg.current.appendChild(result)
+      // svg.current.parentNode.replaceChild(result, svg.current);
     }
 
 
-  }, [])
+  }, [items,options])
 
   // return   <div dangerouslySetInnerHTML={{ __html: state }} />
   return   <div ref={svg}/>

@@ -4,7 +4,7 @@ export const thicknessWithRatio = {
   L: 100,
   M: 50,
   S: 35
-};
+}
 
 export const sizeWithAngles = {
   XXL: [261, 460],
@@ -12,19 +12,18 @@ export const sizeWithAngles = {
   L: [221, 500],
   M: [201, 520],
   S: [181, 540]
-};
+}
 export const colors = [
-  "#FF0000",
-  "#FF7F00",
-  "#FFFF00",
-  "#00FF00",
-  "#00FFFF",
-  "#0000FF",
-  "#8B00FF"
-];
+  '#FF0000',
+  '#FF7F00',
+  '#FFFF00',
+  '#00FF00',
+  '#00FFFF',
+  '#0000FF',
+  '#8B00FF'
+]
 
-
-export const  chartStyles = `
+export const chartStyles = `
 
 
 .description {
@@ -125,6 +124,31 @@ export const  chartStyles = `
     }
 }
 
+
+  foreignObject {
+    cursor: pointer;
+  }
+
+  a text {
+    transition: all 0.5s ease;
+    filter: ;
+    cursor: pointer;
+  }
+    a .path-container {
+
+      transition: all 0.5s ease;
+      filter: brightness(0.7);
+    }
+   a:hover .path-container {
+    cursor: pointer;
+    transition: all 0.5s ease;
+   filter:brightness(0.8);
+  }
+
+`
+
+export const hoverStyles=`
+
   a:hover .path-container {
     cursor: pointer;
     transition: all 0.5s ease;
@@ -136,19 +160,4 @@ export const  chartStyles = `
     cursor: pointer;
     font-weight: bold;
   }
-  a text {
-    transition: all 0.5s ease;
-    filter: ;
-    cursor: pointer;
-  }
-    a .path-container {
-
-      transition: all 0.5s ease;
-      filter: brightness(0.7);
-    }
-
-  foreignObject {
-    cursor: pointer;
-  }
-
 `

@@ -51,16 +51,16 @@ function createCircle(_ref3, radius, defaultcolor) {
   return createElement('circle', [['cx', x], ['cy', y], ['r', radius], ['fill', defaultcolor]]);
 }
 function createDefinitionBlock() {
-  return createElement("defs", []);
+  return createElement('defs', []);
 }
 function createGroupElement() {
-  return createElement("g", []);
+  return createElement('g', []);
 }
 function createSVGRoot(totalSize) {
-  return createElement("svg", [["width", totalSize], ["height", totalSize]]);
+  return createElement('svg', [['width', totalSize], ['height', totalSize]]);
 }
 function createTitle(label) {
-  var titleElement = createElement("title", []);
+  var titleElement = createElement('title', []);
   titleElement.innerHTML = label;
   return titleElement;
 }
@@ -70,7 +70,7 @@ function getRandomSixDigitString() {
   return str.padStart(6, "0");
 }
 
-var colors = ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#8B00FF"];
+var colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#8B00FF'];
 
 function formatLabel(item) {
   var label = item.label;
@@ -88,7 +88,7 @@ function formatColor(item, index) {
 
 function formatToArrayOfObjects(inputItems) {
   var isNumber = function isNumber(currentValue) {
-    return typeof currentValue === "number";
+    return typeof currentValue === 'number';
   };
 
   var isAllNumbers = inputItems.every(isNumber);
@@ -105,19 +105,19 @@ function formatToArrayOfObjects(inputItems) {
   return items;
 }
 function reverseString(str) {
-  return str.split("").reverse().join("");
+  return str.split('').reverse().join('');
 }
 function formatItems(inputItems, defaultLabelColor) {
   var items = formatToArrayOfObjects(inputItems);
 
   var hasValueProperty = function hasValueProperty(currentValue) {
-    return null != currentValue.value;
+    return currentValue.value != null;
   };
 
   var isAllValid = items.every(hasValueProperty);
 
   if (!isAllValid) {
-    throw new Error("Invalid Data Found, All items must have a value property");
+    throw new Error('Invalid Data Found, All items must have a value property');
   }
 
   var formatLabelColorWithDefault = function formatLabelColorWithDefault(item) {
@@ -222,14 +222,14 @@ function createArcForSlice(point, angles, _ref3, color, strokeArray) {
 
 function createArcAnimation(strokeArray, duration) {
   if (duration === void 0) {
-    duration = "2s";
+    duration = '2s';
   }
 
-  var animateElement = createElement("animate", [["attributeType", "CSS"], ["attributeName", "stroke-dashoffset"], ["values", "0;" + strokeArray], ["dur", duration], ["fill", "freeze"]]);
+  var animateElement = createElement('animate', [['attributeType', 'CSS'], ['attributeName', 'stroke-dashoffset'], ['values', '0;' + strokeArray], ['dur', duration], ['fill', 'freeze']]);
   return animateElement;
 }
 function createOpacityAnimation(duration) {
-  var animateElement = createElement("animate", [["attributeName", "opacity"], ["from", "1"], ["to", "0"], ["dur", duration], ["begin", ".5s"], ["fill", "freeze"], ["repeatCount", "1"]]);
+  var animateElement = createElement('animate', [['attributeName', 'opacity'], ['from', '1'], ['to', '0'], ['dur', duration], ['begin', '.5s'], ['fill', 'freeze'], ['repeatCount', '1']]);
   return animateElement;
 }
 function getBorderAnimation(_ref, _ref2, _ref3, backgroundColor, animationDurationInSeconds) {
@@ -251,8 +251,8 @@ function getBorderAnimation(_ref, _ref2, _ref3, backgroundColor, animationDurati
     innerRadius: innerRadius,
     outerRadius: outerRadius + 10
   }, backgroundColor, strokeArray);
-  animatedMaskArc.setAttribute("stroke-dashoffset", "0");
-  var animateElement = createArcAnimation(strokeArray, animationDurationInSeconds + "s");
+  animatedMaskArc.setAttribute('stroke-dashoffset', '0');
+  var animateElement = createArcAnimation(strokeArray, animationDurationInSeconds + 's');
   animatedMaskArc.appendChild(animateElement);
   return animatedMaskArc;
 }
@@ -263,16 +263,16 @@ function getCenterTitleAnimation(_ref4, radius, backgroundColor, animationDurati
     x: x,
     y: y
   }, radius, backgroundColor);
-  var duration = animationDurationInSeconds + 1 + "s";
+  var duration = animationDurationInSeconds + 1 + 's';
   var animateElement = createOpacityAnimation(duration);
   animatedMaskCircle.appendChild(animateElement);
   return animatedMaskCircle;
 }
 function createHoverFilter() {
-  var filter = createElement("filter", [["id", "glowfilter"], ["filterUnits", "userSpaceOnUse"], ["x", "0"], ["y", "0"], ["width", "100%"], ["height", "100%"]]);
-  var desc = createElement("desc", []);
+  var filter = createElement('filter', [['id', 'glowfilter'], ['filterUnits', 'userSpaceOnUse'], ['x', '0'], ['y', '0'], ['width', '100%'], ['height', '100%']]);
+  var desc = createElement('desc', []);
   filter.appendChild(desc);
-  var fegaussianBlur = createElement("feMorphology", [["operator", "dilate"], ["radius", "2"]]);
+  var fegaussianBlur = createElement('feMorphology', [['operator', 'dilate'], ['radius', '2']]);
   filter.appendChild(fegaussianBlur);
   var defs = createDefinitionBlock();
   defs.appendChild(filter);
@@ -293,7 +293,8 @@ var sizeWithAngles = {
   M: [201, 520],
   S: [181, 540]
 };
-var chartStyles = "\n\n\n.description {\n  pointer-events: none;\n  position: absolute;\n  font-size: 18px;\n  text-align: center;\n  background: white;\n  padding: 10px 15px;\n  z-index: 5;\n  height: 30px;\n  line-height: 30px;\n  margin: 0 auto;\n  color: #21669e;\n  border-radius: 5px;\n  box-shadow: 0 0 0 1px #eee;\n  -moz-transform: translateX(-50%);\n  -ms-transform: translateX(-50%);\n  -webkit-transform: translateX(-50%);\n  transform: translateX(-50%);\n  display: none;\n}\n.description.active {\n  display: block;\n}\n.description:after {\n  content: \"\";\n  position: absolute;\n  left: 50%;\n  top: 100%;\n  width: 0;\n  height: 0;\n  margin-left: -10px;\n  border-left: 10px solid transparent;\n  border-right: 10px solid transparent;\n  border-top: 10px solid white;\n}\n\n\n.horse-chart-tooltip::after {\n    content: \"\";\n    position: absolute;\n    top: 100%;\n    left: 50%;\n    margin-left: -5px;\n    border-width: 5px;\n    border-style: solid;\n    border-color: cornsilk transparent transparent transparent;\n}\n.tooltip-animation-on\n{\n    display: block;\n\n    -webkit-animation: fadeInFromNone 0.5s ease-out;\n    -moz-animation: fadeInFromNone 0.5s ease-out;\n    -o-animation: fadeInFromNone 0.5s ease-out;\n    animation: fadeInFromNone 0.5s ease-out;\n}\n@keyframes fadeInFromNone {\n    0% {\n        display: none;\n        opacity: 0;\n    }\n\n    1% {\n        display: block;\n        opacity: 0;\n    }\n\n    100% {\n        display: block;\n        opacity: 1;\n    }\n}\n.tooltip-animation-off\n{\n    display: block;\n\n    -webkit-animation: fadeOutFromNone 0.5s ease-out;\n    -moz-animation: fadeOutFromNone 0.5s ease-out;\n    -o-animation: fadeOutFromNone 0.5s ease-out;\n    animation: fadeOutFromNone 0.5s ease-out;\n}\n@keyframes fadeOutFromNone {\n    0% {\n        display: block;\n        opacity: 1;\n    }\n\n    1% {\n        display: block;\n        opacity: 0;\n    }\n\n    100% {\n        display: none;\n        opacity: 1;\n    }\n}\n\n  a:hover .path-container {\n    cursor: pointer;\n    transition: all 0.5s ease;\n   filter:url(#glowfilter) brightness(1.0);\n  }\n\n  a:hover text {\n    transition: all 0.5s ease;\n    cursor: pointer;\n    font-weight: bold;\n  }\n  a text {\n    transition: all 0.5s ease;\n    filter: ;\n    cursor: pointer;\n  }\n    a .path-container {\n\n      transition: all 0.5s ease;\n      filter: brightness(0.7);\n    }\n\n  foreignObject {\n    cursor: pointer;\n  }\n\n";
+var chartStyles = "\n\n\n.description {\n  pointer-events: none;\n  position: absolute;\n  font-size: 18px;\n  text-align: center;\n  background: white;\n  padding: 10px 15px;\n  z-index: 5;\n  height: 30px;\n  line-height: 30px;\n  margin: 0 auto;\n  color: #21669e;\n  border-radius: 5px;\n  box-shadow: 0 0 0 1px #eee;\n  -moz-transform: translateX(-50%);\n  -ms-transform: translateX(-50%);\n  -webkit-transform: translateX(-50%);\n  transform: translateX(-50%);\n  display: none;\n}\n.description.active {\n  display: block;\n}\n.description:after {\n  content: \"\";\n  position: absolute;\n  left: 50%;\n  top: 100%;\n  width: 0;\n  height: 0;\n  margin-left: -10px;\n  border-left: 10px solid transparent;\n  border-right: 10px solid transparent;\n  border-top: 10px solid white;\n}\n\n\n.horse-chart-tooltip::after {\n    content: \"\";\n    position: absolute;\n    top: 100%;\n    left: 50%;\n    margin-left: -5px;\n    border-width: 5px;\n    border-style: solid;\n    border-color: cornsilk transparent transparent transparent;\n}\n.tooltip-animation-on\n{\n    display: block;\n\n    -webkit-animation: fadeInFromNone 0.5s ease-out;\n    -moz-animation: fadeInFromNone 0.5s ease-out;\n    -o-animation: fadeInFromNone 0.5s ease-out;\n    animation: fadeInFromNone 0.5s ease-out;\n}\n@keyframes fadeInFromNone {\n    0% {\n        display: none;\n        opacity: 0;\n    }\n\n    1% {\n        display: block;\n        opacity: 0;\n    }\n\n    100% {\n        display: block;\n        opacity: 1;\n    }\n}\n.tooltip-animation-off\n{\n    display: block;\n\n    -webkit-animation: fadeOutFromNone 0.5s ease-out;\n    -moz-animation: fadeOutFromNone 0.5s ease-out;\n    -o-animation: fadeOutFromNone 0.5s ease-out;\n    animation: fadeOutFromNone 0.5s ease-out;\n}\n@keyframes fadeOutFromNone {\n    0% {\n        display: block;\n        opacity: 1;\n    }\n\n    1% {\n        display: block;\n        opacity: 0;\n    }\n\n    100% {\n        display: none;\n        opacity: 1;\n    }\n}\n\n\n  foreignObject {\n    cursor: pointer;\n  }\n\n  a text {\n    transition: all 0.5s ease;\n    filter: ;\n    cursor: pointer;\n  }\n    a .path-container {\n\n      transition: all 0.5s ease;\n      filter: brightness(0.7);\n    }\n   a:hover .path-container {\n    cursor: pointer;\n    transition: all 0.5s ease;\n   filter:brightness(0.8);\n  }\n\n";
+var hoverStyles = "\n\n  a:hover .path-container {\n    cursor: pointer;\n    transition: all 0.5s ease;\n   filter:url(#glowfilter) brightness(1.0);\n  }\n\n  a:hover text {\n    transition: all 0.5s ease;\n    cursor: pointer;\n    font-weight: bold;\n  }\n";
 
 function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
   var textPathDefinitionElement = createElement('defs', []);
@@ -392,37 +393,50 @@ function getPoint(totalSize) {
   };
 }
 
-function getChartStyleElement() {
-  var styleElement = createElement("style", []);
-  styleElement.innerHTML = chartStyles;
+function getChartStyleElement(_ref) {
+  var showGlow = _ref.showGlow;
+  var result = "";
+  if (showGlow) result = hoverStyles;
+  var styleElement = createElement('style', []);
+  styleElement.innerHTML = result + chartStyles;
   return styleElement;
 }
 
 function HorseShoeChartCreator(items, options) {
   var defaultOptions = {
     radius: 100,
-    showAnimation: true,
-    animationDurationInSeconds: 2,
-    title: "",
-    titleColor: "#FF0000",
-    thicknessSize: "M",
-    gapSize: "XL",
+    showAnimation: false,
+    animationDurationInSeconds: 5,
+    title: '',
+    titleColor: '#FF0000',
+    thicknessSize: 'M',
+    gapSize: 'XL',
+    showGlow: false,
     labelSize: 12,
-    labelColor: "white",
-    backgroundColor: "white",
-    imgUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+    labelColor: 'white',
+    backgroundColor: 'white',
+    imageUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
   };
 
-  var formattedOptions = _extends({}, defaultOptions, options);
+  var mergedOptions = _extends({}, defaultOptions, options);
+
+  var formattedOptions = _extends({}, mergedOptions, {
+    showAnimation: String(mergedOptions.showAnimation) === 'true',
+    showGlow: String(mergedOptions.showGlow) === 'true',
+    radius: Number(mergedOptions.radius),
+    animationDurationInSeconds: Number(mergedOptions.animationDurationInSeconds),
+    labelSize: Number(mergedOptions.labelSize)
+  });
 
   var radius = formattedOptions.radius,
       title = formattedOptions.title,
+      showGlow = formattedOptions.showGlow,
       thicknessSize = formattedOptions.thicknessSize,
       showAnimation = formattedOptions.showAnimation,
       animationDurationInSeconds = formattedOptions.animationDurationInSeconds,
       gapSize = formattedOptions.gapSize,
       backgroundColor = formattedOptions.backgroundColor,
-      imgUrl = formattedOptions.imgUrl,
+      imageUrl = formattedOptions.imageUrl,
       titleColor = formattedOptions.titleColor,
       labelSize = formattedOptions.labelSize,
       labelColor = formattedOptions.labelColor;
@@ -447,12 +461,17 @@ function HorseShoeChartCreator(items, options) {
   var centerTitleContainer = getTitleContainer({
     x: x,
     y: y
-  }, radius, imgUrl, title, titleColor);
+  }, radius, imageUrl, title, titleColor);
   container.appendChild(centerTitleContainer);
   var currentAngle = startAngle;
   var formattedItems = formatItems(items, labelColor);
-  var filterElement = createHoverFilter();
-  container.appendChild(filterElement);
+
+  if (showGlow) {
+    console.log('showGlow');
+    var filterElement = createHoverFilter();
+    container.appendChild(filterElement);
+  }
+
   formattedItems.forEach(function (item, index) {
     var percentage = item.percentage,
         id = item.id,
@@ -496,14 +515,16 @@ function HorseShoeChartCreator(items, options) {
     }, radius, backgroundColor, animationDurationInSeconds);
     container.appendChild(centerTitleAnimation);
 
-    centerTitleAnimation.querySelector("animate").onend = function () {
+    centerTitleAnimation.querySelector('animate').onend = function () {
       container.removeChild(centerTitleAnimation);
       container.removeChild(borderAnimation);
     };
   }
 
   var root = createSVGRoot(totalSize);
-  var styleElement = getChartStyleElement();
+  var styleElement = getChartStyleElement({
+    showGlow: showGlow
+  });
   root.appendChild(styleElement);
   root.appendChild(container);
   return root;
@@ -517,9 +538,13 @@ var HorseShoeChart = function HorseShoeChart(_ref) {
     var result = HorseShoeChartCreator(items, options);
 
     if (svg.current) {
+      if (svg.current.children.length > 0) {
+        svg.current.removeChild(svg.current.children[0]);
+      }
+
       svg.current.appendChild(result);
     }
-  }, []);
+  }, [items, options]);
   return /*#__PURE__*/React__default.createElement("div", {
     ref: svg
   });

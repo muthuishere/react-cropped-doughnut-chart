@@ -1,8 +1,6 @@
-import { createElement, createTitle } from "../builder/elements";
-import { createArcForSlice } from "../draw/arc";
-import { getTextElements } from "../draw/textInArc";
-import { setupToolTips } from "./Tooltip";
-
+import { createElement, createTitle } from '../builder/elements'
+import { createArcForSlice } from '../draw/arc'
+import { getTextElements } from '../draw/textInArc'
 
 export function getSliceElement(
   angles,
@@ -12,29 +10,27 @@ export function getSliceElement(
   { labelSize },
   { id, previousId }
 ) {
-
-
-
-
   const containerId = 'box' + id
-  let sliceAttributes = [
+  const sliceAttributes = [
     ['id', 'container' + containerId],
     ['class', 'slice-container'],
     ['style', 'text-decoration: none;']
-  ];
-
+  ]
 
   const container = createElement('a', sliceAttributes)
 
   container.appendChild(createTitle(label))
-  //setupToolTips(label, container);
+  // setupToolTips(label, container);
 
+  const arc = createArcForSlice(
+    point,
+    angles,
+    { innerRadius, outerRadius },
+    color,
+    0
+  )
 
-  const arc = createArcForSlice(point, angles, { innerRadius, outerRadius }, color, 0)
-
-
-  container.appendChild(arc);
-
+  container.appendChild(arc)
 
   const textContainer = getTextElements(
     id,
@@ -43,7 +39,7 @@ export function getSliceElement(
     angles,
     point
   )
-  container.appendChild(textContainer);
+  container.appendChild(textContainer)
 
   return container
 }

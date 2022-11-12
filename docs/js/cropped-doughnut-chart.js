@@ -27,9 +27,13 @@ function getPoint(totalSize) {
   };
 }
 
-function getChartStyleElement() {
-  const styleElement = (0, _elements.createElement)("style", []);
-  styleElement.innerHTML = _config.chartStyles;
+function getChartStyleElement({
+  showGlow
+}) {
+  let result = "";
+  if (showGlow) result = _config.hoverStyles;
+  const styleElement = (0, _elements.createElement)('style', []);
+  styleElement.innerHTML = result + _config.chartStyles;
   return styleElement;
 }
 
@@ -37,19 +41,27 @@ function HorseShoeChartCreator(items, options) {
   // insertStyles(chartStyles);
   const defaultOptions = {
     radius: 100,
-    showAnimation: true,
-    animationDurationInSeconds: 2,
-    title: "",
-    titleColor: "#FF0000",
-    thicknessSize: "M",
-    gapSize: "XL",
+    showAnimation: false,
+    animationDurationInSeconds: 5,
+    title: '',
+    titleColor: '#FF0000',
+    thicknessSize: 'M',
+    gapSize: 'XL',
+    showGlow: false,
     labelSize: 12,
-    labelColor: "white",
-    backgroundColor: "white",
-    imgUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+    labelColor: 'white',
+    backgroundColor: 'white',
+    imageUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
   };
-  const formattedOptions = { ...defaultOptions,
+  const mergedOptions = { ...defaultOptions,
     ...options
+  };
+  const formattedOptions = { ...mergedOptions,
+    showAnimation: String(mergedOptions.showAnimation) === 'true',
+    showGlow: String(mergedOptions.showGlow) === 'true',
+    radius: Number(mergedOptions.radius),
+    animationDurationInSeconds: Number(mergedOptions.animationDurationInSeconds),
+    labelSize: Number(mergedOptions.labelSize)
   };
   const {
     radius,
@@ -60,7 +72,7 @@ function HorseShoeChartCreator(items, options) {
     animationDurationInSeconds,
     gapSize,
     backgroundColor,
-    imgUrl,
+    imageUrl,
     titleColor,
     labelSize,
     labelColor
@@ -82,12 +94,17 @@ function HorseShoeChartCreator(items, options) {
   const centerTitleContainer = (0, _TitleContainer.getTitleContainer)({
     x,
     y
-  }, radius, imgUrl, title, titleColor);
+  }, radius, imageUrl, title, titleColor);
   container.appendChild(centerTitleContainer);
   let currentAngle = startAngle;
   const formattedItems = (0, _formatter.formatItems)(items, labelColor);
-  const filterElement = (0, _Animator.createHoverFilter)();
-  container.appendChild(filterElement);
+
+  if (showGlow) {
+    console.log('showGlow');
+    const filterElement = (0, _Animator.createHoverFilter)();
+    container.appendChild(filterElement);
+  }
+
   formattedItems.forEach((item, index) => {
     const {
       percentage,
@@ -133,20 +150,22 @@ function HorseShoeChartCreator(items, options) {
     }, radius, backgroundColor, animationDurationInSeconds);
     container.appendChild(centerTitleAnimation);
 
-    centerTitleAnimation.querySelector("animate").onend = () => {
+    centerTitleAnimation.querySelector('animate').onend = () => {
       container.removeChild(centerTitleAnimation);
       container.removeChild(borderAnimation);
     };
   }
 
   const root = (0, _elements.createSVGRoot)(totalSize);
-  const styleElement = getChartStyleElement();
+  const styleElement = getChartStyleElement({
+    showGlow
+  });
   root.appendChild(styleElement);
   root.appendChild(container);
   return root;
 }
 
-},{"./builder/elements":2,"./components/Animator":3,"./components/Slice":4,"./components/TitleContainer":5,"./shared/config":10,"./shared/formatter":11}],2:[function(require,module,exports){
+},{"./builder/elements":2,"./components/Animator":3,"./components/Slice":4,"./components/TitleContainer":5,"./shared/config":9,"./shared/formatter":10}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -184,7 +203,7 @@ function setAttributeForSvg(element, name, value) {
 }
 
 function insertStyles(styles) {
-  if (document.head.querySelector("#doughnut-cropped-chart-styles")) {
+  if (document.head.querySelector('#doughnut-cropped-chart-styles')) {
     return;
   }
 
@@ -208,19 +227,19 @@ function createCircle({
 }
 
 function createDefinitionBlock() {
-  return createElement("defs", []);
+  return createElement('defs', []);
 }
 
 function createGroupElement() {
-  return createElement("g", []);
+  return createElement('g', []);
 }
 
 function createSVGRoot(totalSize) {
-  return createElement("svg", [["width", totalSize], ["height", totalSize]]);
+  return createElement('svg', [['width', totalSize], ['height', totalSize]]);
 }
 
 function createTitle(label) {
-  const titleElement = createElement("title", []);
+  const titleElement = createElement('title', []);
   titleElement.innerHTML = label;
   return titleElement;
 }
@@ -242,13 +261,13 @@ var _elements = require("../builder/elements");
 
 var _arc = require("../draw/arc");
 
-function createArcAnimation(strokeArray, duration = "2s") {
-  const animateElement = (0, _elements.createElement)("animate", [["attributeType", "CSS"], ["attributeName", "stroke-dashoffset"], ["values", "0;" + strokeArray], ["dur", duration], ["fill", "freeze"]]);
+function createArcAnimation(strokeArray, duration = '2s') {
+  const animateElement = (0, _elements.createElement)('animate', [['attributeType', 'CSS'], ['attributeName', 'stroke-dashoffset'], ['values', '0;' + strokeArray], ['dur', duration], ['fill', 'freeze']]);
   return animateElement;
 }
 
 function createOpacityAnimation(duration) {
-  const animateElement = (0, _elements.createElement)("animate", [["attributeName", "opacity"], ["from", "1"], ["to", "0"], ["dur", duration], ["begin", ".5s"], ["fill", "freeze"], ["repeatCount", "1"]]);
+  const animateElement = (0, _elements.createElement)('animate', [['attributeName', 'opacity'], ['from', '1'], ['to', '0'], ['dur', duration], ['begin', '.5s'], ['fill', 'freeze'], ['repeatCount', '1']]);
   return animateElement;
 }
 
@@ -263,7 +282,7 @@ function getBorderAnimation({
   endAngle
 }, backgroundColor, animationDurationInSeconds) {
   const strokeArray = 900;
-  let adjustedAngle = 20;
+  const adjustedAngle = 20;
   const animatedMaskArc = (0, _arc.createArcForSlice)({
     x,
     y
@@ -274,8 +293,8 @@ function getBorderAnimation({
     innerRadius,
     outerRadius: outerRadius + 10
   }, backgroundColor, strokeArray);
-  animatedMaskArc.setAttribute("stroke-dashoffset", "0");
-  const animateElement = createArcAnimation(strokeArray, animationDurationInSeconds + "s");
+  animatedMaskArc.setAttribute('stroke-dashoffset', '0');
+  const animateElement = createArcAnimation(strokeArray, animationDurationInSeconds + 's');
   animatedMaskArc.appendChild(animateElement);
   return animatedMaskArc;
 }
@@ -288,7 +307,7 @@ function getCenterTitleAnimation({
     x,
     y
   }, radius, backgroundColor);
-  const duration = animationDurationInSeconds + 1 + "s";
+  const duration = animationDurationInSeconds + 1 + 's';
   const animateElement = createOpacityAnimation(duration);
   animatedMaskCircle.appendChild(animateElement);
   return animatedMaskCircle;
@@ -317,11 +336,11 @@ function getCenterTitleAnimation({
 
 
 function createHoverFilter() {
-  const filter = (0, _elements.createElement)("filter", [["id", "glowfilter"], ["filterUnits", "userSpaceOnUse"], ["x", "0"], ["y", "0"], ["width", "100%"], ["height", "100%"]]);
-  const desc = (0, _elements.createElement)("desc", [], "Produces a 3D lighting effect.");
-  filter.appendChild(desc); //<feMorphology operator="dilate" radius="2"/>
+  const filter = (0, _elements.createElement)('filter', [['id', 'glowfilter'], ['filterUnits', 'userSpaceOnUse'], ['x', '0'], ['y', '0'], ['width', '100%'], ['height', '100%']]);
+  const desc = (0, _elements.createElement)('desc', [], 'Produces a 3D lighting effect.');
+  filter.appendChild(desc); // <feMorphology operator="dilate" radius="2"/>
 
-  const fegaussianBlur = (0, _elements.createElement)("feMorphology", [["operator", "dilate"], ["radius", "2"]]);
+  const fegaussianBlur = (0, _elements.createElement)('feMorphology', [['operator', 'dilate'], ['radius', '2']]);
   filter.appendChild(fegaussianBlur);
   const defs = (0, _elements.createDefinitionBlock)();
   defs.appendChild(filter);
@@ -329,27 +348,27 @@ function createHoverFilter() {
 }
 
 function create3deffect() {
-  const filter = (0, _elements.createElement)("filter", [["id", "glowfilter"], ["filterUnits", "userSpaceOnUse"], ["x", "0"], ["y", "0"], ["width", "100%"], ["height", "100%"]]);
-  const desc = (0, _elements.createElement)("desc", [], "Produces a 3D lighting effect.");
+  const filter = (0, _elements.createElement)('filter', [['id', 'glowfilter'], ['filterUnits', 'userSpaceOnUse'], ['x', '0'], ['y', '0'], ['width', '100%'], ['height', '100%']]);
+  const desc = (0, _elements.createElement)('desc', [], 'Produces a 3D lighting effect.');
   filter.appendChild(desc);
-  const fegaussianBlur = (0, _elements.createElement)("feGaussianBlur", [["in", "SourceAlpha"], ["stdDeviation", "4"], ["result", "blur"]]);
+  const fegaussianBlur = (0, _elements.createElement)('feGaussianBlur', [['in', 'SourceAlpha'], ['stdDeviation', '4'], ['result', 'blur']]);
   filter.appendChild(fegaussianBlur);
-  const feOffset = (0, _elements.createElement)("feOffset", [["in", "blur"], ["dx", "4"], ["dy", "4"], ["result", "offsetBlur"]]);
+  const feOffset = (0, _elements.createElement)('feOffset', [['in', 'blur'], ['dx', '4'], ['dy', '4'], ['result', 'offsetBlur']]);
   filter.appendChild(feOffset);
-  const fepointLight = (0, _elements.createElement)("fePointLight", [["x", "-5000"], ["y", "-10000"], ["z", "20000"]]);
-  const feSpecularLighting = (0, _elements.createElement)("feSpecularLighting", [["in", "blur"], ["surfaceScale", "5"], ["specularConstant", ".5"], ["specularExponent", "20"], ["lighting-color", "#bbbbbb"], ["result", "specOut"]]);
+  const fepointLight = (0, _elements.createElement)('fePointLight', [['x', '-5000'], ['y', '-10000'], ['z', '20000']]);
+  const feSpecularLighting = (0, _elements.createElement)('feSpecularLighting', [['in', 'blur'], ['surfaceScale', '5'], ['specularConstant', '.5'], ['specularExponent', '20'], ['lighting-color', '#bbbbbb'], ['result', 'specOut']]);
   feSpecularLighting.appendChild(fepointLight);
   filter.appendChild(feSpecularLighting);
-  const feCompositeSpecOut = (0, _elements.createElement)("feComposite", [["in", "specOut"], ["in2", "SourceAlpha"], ["operator", "in"], ["result", "specOut"]]);
+  const feCompositeSpecOut = (0, _elements.createElement)('feComposite', [['in', 'specOut'], ['in2', 'SourceAlpha'], ['operator', 'in'], ['result', 'specOut']]);
   filter.appendChild(feCompositeSpecOut);
-  const feCompositeSourceGraphic = (0, _elements.createElement)("feComposite", [["in", "SourceGraphic"], ["in2", "specOut"], ["operator", "arithmetic"], ["k1", "0"], ["k2", "1"], ["k3", "1"], ["k4", "0"], ["result", "litPaint"]]);
+  const feCompositeSourceGraphic = (0, _elements.createElement)('feComposite', [['in', 'SourceGraphic'], ['in2', 'specOut'], ['operator', 'arithmetic'], ['k1', '0'], ['k2', '1'], ['k3', '1'], ['k4', '0'], ['result', 'litPaint']]);
   filter.appendChild(feCompositeSourceGraphic);
   const defs = (0, _elements.createDefinitionBlock)();
   defs.appendChild(filter);
   return defs;
 }
 
-},{"../builder/elements":2,"../draw/arc":7}],4:[function(require,module,exports){
+},{"../builder/elements":2,"../draw/arc":6}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -362,8 +381,6 @@ var _elements = require("../builder/elements");
 var _arc = require("../draw/arc");
 
 var _textInArc = require("../draw/textInArc");
-
-var _Tooltip = require("./Tooltip");
 
 function getSliceElement(angles, {
   label,
@@ -380,9 +397,9 @@ function getSliceElement(angles, {
   previousId
 }) {
   const containerId = 'box' + id;
-  let sliceAttributes = [['id', 'container' + containerId], ['class', 'slice-container'], ['style', 'text-decoration: none;']];
+  const sliceAttributes = [['id', 'container' + containerId], ['class', 'slice-container'], ['style', 'text-decoration: none;']];
   const container = (0, _elements.createElement)('a', sliceAttributes);
-  container.appendChild((0, _elements.createTitle)(label)); //setupToolTips(label, container);
+  container.appendChild((0, _elements.createTitle)(label)); // setupToolTips(label, container);
 
   const arc = (0, _arc.createArcForSlice)(point, angles, {
     innerRadius,
@@ -401,7 +418,7 @@ function getSliceElement(angles, {
   return container;
 }
 
-},{"../builder/elements":2,"../draw/arc":7,"../draw/textInArc":9,"./Tooltip":6}],5:[function(require,module,exports){
+},{"../builder/elements":2,"../draw/arc":6,"../draw/textInArc":8}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -441,60 +458,6 @@ function getTitleContainer({
 }
 
 },{"../builder/elements":2}],6:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.onToolTipMouseOut = onToolTipMouseOut;
-exports.onTooltipMouseOver = onTooltipMouseOver;
-exports.setupToolTips = setupToolTips;
-
-var _elements = require("../builder/elements");
-
-const TOOL_TIP_CLASS = "horse-chart-tooltip";
-
-const getToolTipElement = () => document.querySelector("." + TOOL_TIP_CLASS);
-
-function createToolTipElement() {
-  const tooltipElement = (0, _elements.createHtmlElement)("div", [["class", TOOL_TIP_CLASS], ["style", "position: absolute; display: block;background: cornsilk;  border: 1px solid black;  border-radius: 5px;  padding: 5px;  z-index: 1002;"]]);
-  document.body.appendChild(tooltipElement);
-  return tooltipElement;
-}
-
-function onTooltipMouseOver(evt, label) {
-  let tooltipElement = getToolTipElement();
-
-  if (tooltipElement == null) {
-    tooltipElement = createToolTipElement();
-  }
-
-  if (label === tooltipElement.innerHTML) {
-    return;
-  }
-
-  console.log("changing tooltip", label);
-  tooltipElement.style.left = evt.clientX + "px";
-  tooltipElement.style.top = evt.clientY - 20 + "px";
-  tooltipElement.innerHTML = label;
-}
-
-function onToolTipMouseOut(evt) {
-  const element = getToolTipElement();
-
-  if (element) {
-    document.body.removeChild(element);
-  }
-}
-
-function setupToolTips(label, container) {
-  const onTooltipMouseOverFunc = evt => onTooltipMouseOver(evt, label);
-
-  container.addEventListener("mouseover", onTooltipMouseOverFunc);
-  container.addEventListener("mouseout", onToolTipMouseOut);
-}
-
-},{"../builder/elements":2}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -549,7 +512,7 @@ function createArcForSlice(point, angles, {
   return createArc(containerAttributes, point, angles, innerRadius);
 }
 
-},{"../builder/elements":2,"./calculations":8}],8:[function(require,module,exports){
+},{"../builder/elements":2,"./calculations":7}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -612,7 +575,7 @@ function drawingCoordinatesForTextPosition({
   return d;
 }
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -666,13 +629,13 @@ function getTextElements(id, {
   return container;
 }
 
-},{"../builder/elements":2,"../draw/calculations":8,"../shared/formatter":11}],10:[function(require,module,exports){
+},{"../builder/elements":2,"../draw/calculations":7,"../shared/formatter":10}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.thicknessWithRatio = exports.sizeWithAngles = exports.colors = exports.chartStyles = void 0;
+exports.thicknessWithRatio = exports.sizeWithAngles = exports.hoverStyles = exports.colors = exports.chartStyles = void 0;
 const thicknessWithRatio = {
   XXL: 150,
   XL: 125,
@@ -689,9 +652,47 @@ const sizeWithAngles = {
   S: [181, 540]
 };
 exports.sizeWithAngles = sizeWithAngles;
-const colors = ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#8B00FF"];
+const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#8B00FF'];
 exports.colors = colors;
 const chartStyles = `
+
+
+.description {
+  pointer-events: none;
+  position: absolute;
+  font-size: 18px;
+  text-align: center;
+  background: white;
+  padding: 10px 15px;
+  z-index: 5;
+  height: 30px;
+  line-height: 30px;
+  margin: 0 auto;
+  color: #21669e;
+  border-radius: 5px;
+  box-shadow: 0 0 0 1px #eee;
+  -moz-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  display: none;
+}
+.description.active {
+  display: block;
+}
+.description:after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 0;
+  height: 0;
+  margin-left: -10px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid white;
+}
+
 
 .horse-chart-tooltip::after {
     content: "";
@@ -754,6 +755,31 @@ const chartStyles = `
     }
 }
 
+
+  foreignObject {
+    cursor: pointer;
+  }
+
+  a text {
+    transition: all 0.5s ease;
+    filter: ;
+    cursor: pointer;
+  }
+    a .path-container {
+
+      transition: all 0.5s ease;
+      filter: brightness(0.7);
+    }
+   a:hover .path-container {
+    cursor: pointer;
+    transition: all 0.5s ease;
+   filter:brightness(0.8);
+  }
+
+`;
+exports.chartStyles = chartStyles;
+const hoverStyles = `
+
   a:hover .path-container {
     cursor: pointer;
     transition: all 0.5s ease;
@@ -765,25 +791,10 @@ const chartStyles = `
     cursor: pointer;
     font-weight: bold;
   }
-  a text {
-    transition: all 0.5s ease;
-    filter: ;
-    cursor: pointer;
-  }
-    a .path-container {
-
-      transition: all 0.5s ease;
-      filter: brightness(0.7);
-    }
-
-  foreignObject {
-    cursor: pointer;
-  }
-
 `;
-exports.chartStyles = chartStyles;
+exports.hoverStyles = hoverStyles;
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -798,7 +809,7 @@ exports.reverseString = reverseString;
 
 var _randomizer = require("./randomizer");
 
-const colors = ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#8B00FF"];
+const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#8B00FF'];
 
 function formatLabel(item) {
   const {
@@ -819,7 +830,7 @@ function formatColor(item, index) {
 }
 
 function formatToArrayOfObjects(inputItems) {
-  const isNumber = currentValue => typeof currentValue === "number";
+  const isNumber = currentValue => typeof currentValue === 'number';
 
   const isAllNumbers = inputItems.every(isNumber);
   let items = inputItems;
@@ -834,18 +845,18 @@ function formatToArrayOfObjects(inputItems) {
 }
 
 function reverseString(str) {
-  return str.split("").reverse().join("");
+  return str.split('').reverse().join('');
 }
 
 function formatItems(inputItems, defaultLabelColor) {
   const items = formatToArrayOfObjects(inputItems);
 
-  const hasValueProperty = currentValue => null != currentValue.value;
+  const hasValueProperty = currentValue => currentValue.value != null;
 
   const isAllValid = items.every(hasValueProperty);
 
   if (!isAllValid) {
-    throw new Error("Invalid Data Found, All items must have a value property");
+    throw new Error('Invalid Data Found, All items must have a value property');
   }
 
   const formatLabelColorWithDefault = item => formatLabelColor(item, defaultLabelColor);
@@ -892,7 +903,7 @@ function formatSlicePreviousId(item, index, array) {
   };
 }
 
-},{"./randomizer":12}],12:[function(require,module,exports){
+},{"./randomizer":11}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

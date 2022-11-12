@@ -1,25 +1,50 @@
 import React, { useRef, useEffect } from 'react';
 
-const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
+var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 function createElement(name, attribs) {
-  const xmlns = SVG_NAMESPACE;
-  const svgElem = document.createElementNS(xmlns, name);
-  attribs.forEach(([name, value]) => svgElem.setAttributeNS(null, name, value));
+  var xmlns = SVG_NAMESPACE;
+  var svgElem = document.createElementNS(xmlns, name);
+  attribs.forEach(function (_ref) {
+    var name = _ref[0],
+        value = _ref[1];
+    return svgElem.setAttributeNS(null, name, value);
+  });
   return svgElem;
 }
 function createHtmlElement(name, attribs) {
-  const element = document.createElement(name);
-  attribs.forEach(([name, value]) => element.setAttribute(name, value));
+  var element = document.createElement(name);
+  attribs.forEach(function (_ref2) {
+    var name = _ref2[0],
+        value = _ref2[1];
+    return element.setAttribute(name, value);
+  });
   return element;
 }
 function createContainer() {
-  const container = createElement('g', []);
+  var container = createElement('g', []);
   return container;
 }
-function createCircle({
-  x,
-  y
-}, radius, defaultcolor) {
+function createCircle(_ref3, radius, defaultcolor) {
+  var x = _ref3.x,
+      y = _ref3.y;
   return createElement('circle', [['cx', x], ['cy', y], ['r', radius], ['fill', defaultcolor]]);
 }
 function createDefinitionBlock() {
@@ -32,46 +57,46 @@ function createSVGRoot(totalSize) {
   return createElement('svg', [['width', totalSize], ['height', totalSize]]);
 }
 function createTitle(label) {
-  const titleElement = createElement('title', []);
+  var titleElement = createElement('title', []);
   titleElement.innerHTML = label;
   return titleElement;
 }
 
 function getRandomSixDigitString() {
-  const str = "" + Math.floor(Math.random() * (999999 - 1)) + 1;
+  var str = "" + Math.floor(Math.random() * (999999 - 1)) + 1;
   return str.padStart(6, "0");
 }
 
-const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#8B00FF'];
+var colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#8B00FF'];
 
 function formatLabel(item) {
-  const {
-    label
-  } = item;
-  if (label) return item;else return { ...item,
-    label: `${item.value}`
-  };
+  var label = item.label;
+  if (label) return item;else return _extends({}, item, {
+    label: "" + item.value
+  });
 }
 
 function formatColor(item, index) {
-  const {
-    color
-  } = item;
-  if (color) return item;else return { ...item,
+  var color = item.color;
+  if (color) return item;else return _extends({}, item, {
     color: colors[index]
-  };
+  });
 }
 
 function formatToArrayOfObjects(inputItems) {
-  const isNumber = currentValue => typeof currentValue === 'number';
+  var isNumber = function isNumber(currentValue) {
+    return typeof currentValue === 'number';
+  };
 
-  const isAllNumbers = inputItems.every(isNumber);
-  let items = inputItems;
+  var isAllNumbers = inputItems.every(isNumber);
+  var items = inputItems;
 
   if (isAllNumbers) {
-    items = inputItems.map(item => ({
-      value: item
-    }));
+    items = inputItems.map(function (item) {
+      return {
+        value: item
+      };
+    });
   }
 
   return items;
@@ -80,53 +105,54 @@ function reverseString(str) {
   return str.split('').reverse().join('');
 }
 function formatItems(inputItems, defaultLabelColor) {
-  const items = formatToArrayOfObjects(inputItems);
+  var items = formatToArrayOfObjects(inputItems);
 
-  const hasValueProperty = currentValue => currentValue.value != null;
+  var hasValueProperty = function hasValueProperty(currentValue) {
+    return currentValue.value != null;
+  };
 
-  const isAllValid = items.every(hasValueProperty);
+  var isAllValid = items.every(hasValueProperty);
 
   if (!isAllValid) {
     throw new Error('Invalid Data Found, All items must have a value property');
   }
 
-  const formatLabelColorWithDefault = item => formatLabelColor(item, defaultLabelColor);
+  var formatLabelColorWithDefault = function formatLabelColorWithDefault(item) {
+    return formatLabelColor(item, defaultLabelColor);
+  };
 
-  const total = items.reduce((acc, item) => acc + item.value, 0);
-  return items.map(item => ({ ...item,
-    percentage: item.value / total * 100
-  })).map(formatLabel).map(formatColor).map(formatLabelColorWithDefault).map(formatSliceId).map(formatSlicePreviousId);
+  var total = items.reduce(function (acc, item) {
+    return acc + item.value;
+  }, 0);
+  return items.map(function (item) {
+    return _extends({}, item, {
+      percentage: item.value / total * 100
+    });
+  }).map(formatLabel).map(formatColor).map(formatLabelColorWithDefault).map(formatSliceId).map(formatSlicePreviousId);
 }
 function formatLabelColor(item, defaultLabelColor) {
-  return { ...{
-      labelColor: defaultLabelColor
-    },
-    ...item
-  };
+  return _extends({}, {
+    labelColor: defaultLabelColor
+  }, item);
 }
 function formatSliceId(item) {
-  const {
-    value
-  } = item;
-  const id = value + '' + getRandomSixDigitString();
-  return { ...{
-      id: id
-    },
-    ...item
-  };
+  var value = item.value;
+  var id = value + '' + getRandomSixDigitString();
+  return _extends({}, {
+    id: id
+  }, item);
 }
 function formatSlicePreviousId(item, index, array) {
-  const previousItem = array[index - 1];
-  const {
-    id: previousId
-  } = previousItem || {
+  var previousItem = array[index - 1];
+
+  var _ref = previousItem || {
     id: null
-  };
-  return { ...{
-      previousId: previousId
-    },
-    ...item
-  };
+  },
+      previousId = _ref.id;
+
+  return _extends({}, {
+    previousId: previousId
+  }, item);
 }
 
 function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
@@ -136,398 +162,245 @@ function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
     y: centerY + radius * Math.sin(angleInRadians)
   };
 }
-function drawingCoordinatesBetweenInnerAndOuterCircle({
-  innerRadius,
-  outerRadius
-}, {
-  startAngle,
-  endAngle
-}, {
-  x,
-  y
-}) {
-  const middleRadius = innerRadius + (outerRadius - innerRadius) / 2 - 20;
-  const drawingCoordinatesForText = drawingCoordinatesForTextPosition({
-    x,
-    y
+function drawingCoordinatesBetweenInnerAndOuterCircle(_ref, _ref2, _ref3) {
+  var innerRadius = _ref.innerRadius,
+      outerRadius = _ref.outerRadius;
+  var startAngle = _ref2.startAngle,
+      endAngle = _ref2.endAngle;
+  var x = _ref3.x,
+      y = _ref3.y;
+  var middleRadius = innerRadius + (outerRadius - innerRadius) / 2 - 20;
+  var drawingCoordinatesForText = drawingCoordinatesForTextPosition({
+    x: x,
+    y: y
   }, {
-    startAngle,
+    startAngle: startAngle,
     endAngle: endAngle
   }, middleRadius);
   return drawingCoordinatesForText;
 }
-function drawingCoordinatesForTextPosition({
-  x,
-  y
-}, {
-  startAngle,
-  endAngle
-}, radius) {
-  const startPoint = polarToCartesian(x, y, radius, startAngle);
-  const endPoint = polarToCartesian(x, y, radius, endAngle);
-  const arcSweep = endAngle - startAngle <= 180 ? '0' : '1';
-  const d = ['M', endPoint.x, endPoint.y, 'A', radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(' ');
+function drawingCoordinatesForTextPosition(_ref4, _ref5, radius) {
+  var x = _ref4.x,
+      y = _ref4.y;
+  var startAngle = _ref5.startAngle,
+      endAngle = _ref5.endAngle;
+  var startPoint = polarToCartesian(x, y, radius, startAngle);
+  var endPoint = polarToCartesian(x, y, radius, endAngle);
+  var arcSweep = endAngle - startAngle <= 180 ? '0' : '1';
+  var d = ['M', endPoint.x, endPoint.y, 'A', radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(' ');
   return d;
 }
 
-function coordinatesForArc({
-  x,
-  y
-}, {
-  startAngle,
-  endAngle
-}, radius) {
-  const startPoint = polarToCartesian(x, y, radius, startAngle);
-  const endPoint = polarToCartesian(x, y, radius, endAngle);
-  const arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
-  const d = ["M", endPoint.x, endPoint.y, "A", radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(" ");
+function coordinatesForArc(_ref, _ref2, radius) {
+  var x = _ref.x,
+      y = _ref.y;
+  var startAngle = _ref2.startAngle,
+      endAngle = _ref2.endAngle;
+  var startPoint = polarToCartesian(x, y, radius, startAngle);
+  var endPoint = polarToCartesian(x, y, radius, endAngle);
+  var arcSweep = endAngle - startAngle <= 180 ? "0" : "1";
+  var d = ["M", endPoint.x, endPoint.y, "A", radius, radius, 0, arcSweep, 0, startPoint.x, startPoint.y].join(" ");
   return d;
 }
 function createArc(containerAttributes, point, angles, radius) {
-  const innerArc = createElement("path", containerAttributes);
-  const innerArcData = coordinatesForArc(point, angles, radius);
+  var innerArc = createElement("path", containerAttributes);
+  var innerArcData = coordinatesForArc(point, angles, radius);
   innerArc.setAttributeNS(null, "d", innerArcData);
   return innerArc;
 }
-function createArcForSlice(point, angles, {
-  outerRadius,
-  innerRadius
-}, color, strokeArray) {
-  const borderWidth = outerRadius - innerRadius;
-  const strokeData = strokeArray * -1;
-  const containerAttributes = [["fill", "none"], ["stroke", color], ["stroke-width", borderWidth], ["stroke-dashoffset", "" + strokeData], ["stroke-dasharray", "" + strokeArray], ["class", "path-container"]];
+function createArcForSlice(point, angles, _ref3, color, strokeArray) {
+  var outerRadius = _ref3.outerRadius,
+      innerRadius = _ref3.innerRadius;
+  var borderWidth = outerRadius - innerRadius;
+  var strokeData = strokeArray * -1;
+  var containerAttributes = [["fill", "none"], ["stroke", color], ["stroke-width", borderWidth], ["stroke-dashoffset", "" + strokeData], ["stroke-dasharray", "" + strokeArray], ["class", "path-container"]];
   return createArc(containerAttributes, point, angles, innerRadius);
 }
 
-function createArcAnimation(strokeArray, duration = '2s') {
-  const animateElement = createElement('animate', [['attributeType', 'CSS'], ['attributeName', 'stroke-dashoffset'], ['values', '0;' + strokeArray], ['dur', duration], ['fill', 'freeze']]);
+function createArcAnimation(strokeArray, duration) {
+  if (duration === void 0) {
+    duration = '2s';
+  }
+
+  var animateElement = createElement('animate', [['attributeType', 'CSS'], ['attributeName', 'stroke-dashoffset'], ['values', '0;' + strokeArray], ['dur', duration], ['fill', 'freeze']]);
   return animateElement;
 }
 function createOpacityAnimation(duration) {
-  const animateElement = createElement('animate', [['attributeName', 'opacity'], ['from', '1'], ['to', '0'], ['dur', duration], ['begin', '.5s'], ['fill', 'freeze'], ['repeatCount', '1']]);
+  var animateElement = createElement('animate', [['attributeName', 'opacity'], ['from', '1'], ['to', '0'], ['dur', duration], ['begin', '.5s'], ['fill', 'freeze'], ['repeatCount', '1']]);
   return animateElement;
 }
-function getBorderAnimation({
-  x,
-  y
-}, {
-  innerRadius,
-  outerRadius
-}, {
-  startAngle,
-  endAngle
-}, backgroundColor, animationDurationInSeconds) {
-  const strokeArray = 900;
-  const adjustedAngle = 20;
-  const animatedMaskArc = createArcForSlice({
-    x,
-    y
+function getBorderAnimation(_ref, _ref2, _ref3, backgroundColor, animationDurationInSeconds) {
+  var x = _ref.x,
+      y = _ref.y;
+  var innerRadius = _ref2.innerRadius,
+      outerRadius = _ref2.outerRadius;
+  var startAngle = _ref3.startAngle,
+      endAngle = _ref3.endAngle;
+  var strokeArray = 900;
+  var adjustedAngle = 20;
+  var animatedMaskArc = createArcForSlice({
+    x: x,
+    y: y
   }, {
     startAngle: startAngle - adjustedAngle,
     endAngle: endAngle + adjustedAngle
   }, {
-    innerRadius,
+    innerRadius: innerRadius,
     outerRadius: outerRadius + 10
   }, backgroundColor, strokeArray);
   animatedMaskArc.setAttribute('stroke-dashoffset', '0');
-  const animateElement = createArcAnimation(strokeArray, animationDurationInSeconds + 's');
+  var animateElement = createArcAnimation(strokeArray, animationDurationInSeconds + 's');
   animatedMaskArc.appendChild(animateElement);
   return animatedMaskArc;
 }
-function getCenterTitleAnimation({
-  x,
-  y
-}, radius, backgroundColor, animationDurationInSeconds) {
-  const animatedMaskCircle = createCircle({
-    x,
-    y
+function getCenterTitleAnimation(_ref4, radius, backgroundColor, animationDurationInSeconds) {
+  var x = _ref4.x,
+      y = _ref4.y;
+  var animatedMaskCircle = createCircle({
+    x: x,
+    y: y
   }, radius, backgroundColor);
-  const duration = animationDurationInSeconds + 1 + 's';
-  const animateElement = createOpacityAnimation(duration);
+  var duration = animationDurationInSeconds + 1 + 's';
+  var animateElement = createOpacityAnimation(duration);
   animatedMaskCircle.appendChild(animateElement);
   return animatedMaskCircle;
 }
 function createHoverFilter() {
-  const filter = createElement('filter', [['id', 'glowfilter'], ['filterUnits', 'userSpaceOnUse'], ['x', '0'], ['y', '0'], ['width', '100%'], ['height', '100%']]);
-  const desc = createElement('desc', []);
+  var filter = createElement('filter', [['id', 'glowfilter'], ['filterUnits', 'userSpaceOnUse'], ['x', '0'], ['y', '0'], ['width', '100%'], ['height', '100%']]);
+  var desc = createElement('desc', []);
   filter.appendChild(desc);
-  const fegaussianBlur = createElement('feMorphology', [['operator', 'dilate'], ['radius', '2']]);
+  var fegaussianBlur = createElement('feMorphology', [['operator', 'dilate'], ['radius', '2']]);
   filter.appendChild(fegaussianBlur);
-  const defs = createDefinitionBlock();
+  var defs = createDefinitionBlock();
   defs.appendChild(filter);
   return defs;
 }
 
-const thicknessWithRatio = {
+var thicknessWithRatio = {
   XXL: 150,
   XL: 125,
   L: 100,
   M: 50,
   S: 35
 };
-const sizeWithAngles = {
+var sizeWithAngles = {
   XXL: [261, 460],
   XL: [241, 480],
   L: [221, 500],
   M: [201, 520],
   S: [181, 540]
 };
-const chartStyles = `
-
-
-.description {
-  pointer-events: none;
-  position: absolute;
-  font-size: 18px;
-  text-align: center;
-  background: white;
-  padding: 10px 15px;
-  z-index: 5;
-  height: 30px;
-  line-height: 30px;
-  margin: 0 auto;
-  color: #21669e;
-  border-radius: 5px;
-  box-shadow: 0 0 0 1px #eee;
-  -moz-transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  -webkit-transform: translateX(-50%);
-  transform: translateX(-50%);
-  display: none;
-}
-.description.active {
-  display: block;
-}
-.description:after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 100%;
-  width: 0;
-  height: 0;
-  margin-left: -10px;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 10px solid white;
-}
-
-
-.horse-chart-tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: cornsilk transparent transparent transparent;
-}
-.tooltip-animation-on
-{
-    display: block;
-
-    -webkit-animation: fadeInFromNone 0.5s ease-out;
-    -moz-animation: fadeInFromNone 0.5s ease-out;
-    -o-animation: fadeInFromNone 0.5s ease-out;
-    animation: fadeInFromNone 0.5s ease-out;
-}
-@keyframes fadeInFromNone {
-    0% {
-        display: none;
-        opacity: 0;
-    }
-
-    1% {
-        display: block;
-        opacity: 0;
-    }
-
-    100% {
-        display: block;
-        opacity: 1;
-    }
-}
-.tooltip-animation-off
-{
-    display: block;
-
-    -webkit-animation: fadeOutFromNone 0.5s ease-out;
-    -moz-animation: fadeOutFromNone 0.5s ease-out;
-    -o-animation: fadeOutFromNone 0.5s ease-out;
-    animation: fadeOutFromNone 0.5s ease-out;
-}
-@keyframes fadeOutFromNone {
-    0% {
-        display: block;
-        opacity: 1;
-    }
-
-    1% {
-        display: block;
-        opacity: 0;
-    }
-
-    100% {
-        display: none;
-        opacity: 1;
-    }
-}
-
-
-  foreignObject {
-    cursor: pointer;
-  }
-
-  a text {
-    transition: all 0.5s ease;
-    filter: ;
-    cursor: pointer;
-  }
-    a .path-container {
-
-      transition: all 0.5s ease;
-      filter: brightness(0.7);
-    }
-   a:hover .path-container {
-    cursor: pointer;
-    transition: all 0.5s ease;
-   filter:brightness(0.8);
-  }
-
-`;
-const hoverStyles = `
-
-  a:hover .path-container {
-    cursor: pointer;
-    transition: all 0.5s ease;
-   filter:url(#glowfilter) brightness(1.0);
-  }
-
-  a:hover text {
-    transition: all 0.5s ease;
-    cursor: pointer;
-    font-weight: bold;
-  }
-`;
+var chartStyles = "\n\n\n.description {\n  pointer-events: none;\n  position: absolute;\n  font-size: 18px;\n  text-align: center;\n  background: white;\n  padding: 10px 15px;\n  z-index: 5;\n  height: 30px;\n  line-height: 30px;\n  margin: 0 auto;\n  color: #21669e;\n  border-radius: 5px;\n  box-shadow: 0 0 0 1px #eee;\n  -moz-transform: translateX(-50%);\n  -ms-transform: translateX(-50%);\n  -webkit-transform: translateX(-50%);\n  transform: translateX(-50%);\n  display: none;\n}\n.description.active {\n  display: block;\n}\n.description:after {\n  content: \"\";\n  position: absolute;\n  left: 50%;\n  top: 100%;\n  width: 0;\n  height: 0;\n  margin-left: -10px;\n  border-left: 10px solid transparent;\n  border-right: 10px solid transparent;\n  border-top: 10px solid white;\n}\n\n\n.horse-chart-tooltip::after {\n    content: \"\";\n    position: absolute;\n    top: 100%;\n    left: 50%;\n    margin-left: -5px;\n    border-width: 5px;\n    border-style: solid;\n    border-color: cornsilk transparent transparent transparent;\n}\n.tooltip-animation-on\n{\n    display: block;\n\n    -webkit-animation: fadeInFromNone 0.5s ease-out;\n    -moz-animation: fadeInFromNone 0.5s ease-out;\n    -o-animation: fadeInFromNone 0.5s ease-out;\n    animation: fadeInFromNone 0.5s ease-out;\n}\n@keyframes fadeInFromNone {\n    0% {\n        display: none;\n        opacity: 0;\n    }\n\n    1% {\n        display: block;\n        opacity: 0;\n    }\n\n    100% {\n        display: block;\n        opacity: 1;\n    }\n}\n.tooltip-animation-off\n{\n    display: block;\n\n    -webkit-animation: fadeOutFromNone 0.5s ease-out;\n    -moz-animation: fadeOutFromNone 0.5s ease-out;\n    -o-animation: fadeOutFromNone 0.5s ease-out;\n    animation: fadeOutFromNone 0.5s ease-out;\n}\n@keyframes fadeOutFromNone {\n    0% {\n        display: block;\n        opacity: 1;\n    }\n\n    1% {\n        display: block;\n        opacity: 0;\n    }\n\n    100% {\n        display: none;\n        opacity: 1;\n    }\n}\n\n\n  foreignObject {\n    cursor: pointer;\n  }\n\n  a text {\n    transition: all 0.5s ease;\n    filter: ;\n    cursor: pointer;\n  }\n    a .path-container {\n\n      transition: all 0.5s ease;\n      filter: brightness(0.7);\n    }\n   a:hover .path-container {\n    cursor: pointer;\n    transition: all 0.5s ease;\n   filter:brightness(0.8);\n  }\n\n";
+var hoverStyles = "\n\n  a:hover .path-container {\n    cursor: pointer;\n    transition: all 0.5s ease;\n   filter:url(#glowfilter) brightness(1.0);\n  }\n\n  a:hover text {\n    transition: all 0.5s ease;\n    cursor: pointer;\n    font-weight: bold;\n  }\n";
 
 function createTextDefinition(textId, innerAndOuterRadius, angles, point) {
-  const textPathDefinitionElement = createElement('defs', []);
-  const pathToDrawTextElement = createElement('path', [['id', textId], ['stroke-width', '0']]);
+  var textPathDefinitionElement = createElement('defs', []);
+  var pathToDrawTextElement = createElement('path', [['id', textId], ['stroke-width', '0']]);
   textPathDefinitionElement.appendChild(pathToDrawTextElement);
-  const drawingCoordinatesForText = drawingCoordinatesBetweenInnerAndOuterCircle(innerAndOuterRadius, angles, point);
+  var drawingCoordinatesForText = drawingCoordinatesBetweenInnerAndOuterCircle(innerAndOuterRadius, angles, point);
   pathToDrawTextElement.setAttributeNS(null, 'd', drawingCoordinatesForText);
   return textPathDefinitionElement;
 }
 
-function createTextElement(textId, {
-  label,
-  labelSize,
-  labelColor
-}) {
-  const textElement = createElement('text', [['font-size', labelSize + 'px'], ['fill', labelColor], ['rotate', '180']]);
-  const textPathElement = createElement('textPath', [['href', '#' + textId], ['text-anchor', 'middle'], ['startOffset', '50%']]);
+function createTextElement(textId, _ref) {
+  var label = _ref.label,
+      labelSize = _ref.labelSize,
+      labelColor = _ref.labelColor;
+  var textElement = createElement('text', [['font-size', labelSize + 'px'], ['fill', labelColor], ['rotate', '180']]);
+  var textPathElement = createElement('textPath', [['href', '#' + textId], ['text-anchor', 'middle'], ['startOffset', '50%']]);
   textPathElement.innerHTML = reverseString(label);
   textElement.appendChild(textPathElement);
   return textElement;
 }
 
-function getTextElements(id, {
-  label,
-  labelSize,
-  labelColor
-}, innerAndOuterRadius, angles, point) {
-  const textId = 'text' + id;
-  const textPositionPathElement = createTextDefinition(textId, innerAndOuterRadius, angles, point);
-  const textElement = createTextElement(textId, {
-    label,
-    labelSize,
-    labelColor
+function getTextElements(id, _ref2, innerAndOuterRadius, angles, point) {
+  var label = _ref2.label,
+      labelSize = _ref2.labelSize,
+      labelColor = _ref2.labelColor;
+  var textId = 'text' + id;
+  var textPositionPathElement = createTextDefinition(textId, innerAndOuterRadius, angles, point);
+  var textElement = createTextElement(textId, {
+    label: label,
+    labelSize: labelSize,
+    labelColor: labelColor
   });
-  const container = createContainer();
+  var container = createContainer();
   container.appendChild(textPositionPathElement);
   container.appendChild(textElement);
   return container;
 }
 
-function getSliceElement(angles, {
-  label,
-  value,
-  color,
-  labelColor
-}, point, {
-  innerRadius,
-  outerRadius
-}, {
-  labelSize
-}, {
-  id,
-  previousId
-}) {
-  const containerId = 'box' + id;
-  const sliceAttributes = [['id', 'container' + containerId], ['class', 'slice-container'], ['style', 'text-decoration: none;']];
-  const container = createElement('a', sliceAttributes);
+function getSliceElement(angles, _ref, point, _ref2, _ref3, _ref4) {
+  var label = _ref.label,
+      color = _ref.color,
+      labelColor = _ref.labelColor;
+  var innerRadius = _ref2.innerRadius,
+      outerRadius = _ref2.outerRadius;
+  var labelSize = _ref3.labelSize;
+  var id = _ref4.id;
+  var containerId = 'box' + id;
+  var sliceAttributes = [['id', 'container' + containerId], ['class', 'slice-container'], ['style', 'text-decoration: none;']];
+  var container = createElement('a', sliceAttributes);
   container.appendChild(createTitle(label));
-  const arc = createArcForSlice(point, angles, {
-    innerRadius,
-    outerRadius
+  var arc = createArcForSlice(point, angles, {
+    innerRadius: innerRadius,
+    outerRadius: outerRadius
   }, color, 0);
   container.appendChild(arc);
-  const textContainer = getTextElements(id, {
-    label,
-    labelSize,
-    labelColor
+  var textContainer = getTextElements(id, {
+    label: label,
+    labelSize: labelSize,
+    labelColor: labelColor
   }, {
-    innerRadius,
-    outerRadius
+    innerRadius: innerRadius,
+    outerRadius: outerRadius
   }, angles, point);
   container.appendChild(textContainer);
   return container;
 }
 
-const PADDING_RATIO = 0.8;
-function getTitleContainer({
-  x,
-  y
-}, radius, imgUrl, title, textColor) {
-  const mainElement = createHtmlElement('div', [['style', 'display: table-cell; text-align: center; vertical-align: middle;color:' + textColor + ';']]);
-  const paddedRadius = radius * PADDING_RATIO;
-  const imgElement = createHtmlElement('img', [['src', imgUrl], ['width', paddedRadius], ['height', paddedRadius]]);
-  const breakElement = createHtmlElement('br', []);
+var PADDING_RATIO = 0.8;
+function getTitleContainer(_ref, radius, imgUrl, title, textColor) {
+  var x = _ref.x,
+      y = _ref.y;
+  var mainElement = createHtmlElement('div', [['style', 'display: table-cell; text-align: center; vertical-align: middle;color:' + textColor + ';']]);
+  var paddedRadius = radius * PADDING_RATIO;
+  var imgElement = createHtmlElement('img', [['src', imgUrl], ['width', paddedRadius], ['height', paddedRadius]]);
+  var breakElement = createHtmlElement('br', []);
   mainElement.appendChild(imgElement);
   mainElement.appendChild(breakElement);
   mainElement.innerHTML += title;
-  const container = createHtmlElement('div', [['style', 'display: table; font-size: 24px; width: 100%; height: 100%;']]);
+  var container = createHtmlElement('div', [['style', 'display: table; font-size: 24px; width: 100%; height: 100%;']]);
   container.appendChild(mainElement);
-  const paddedX = x - paddedRadius;
-  const paddedY = y - paddedRadius;
-  const width = paddedRadius * 2;
-  const height = paddedRadius * 2;
-  const foreignObject = createElement('foreignObject', [['x', paddedX], ['y', paddedY], ['width', width], ['height', height]]);
+  var paddedX = x - paddedRadius;
+  var paddedY = y - paddedRadius;
+  var width = paddedRadius * 2;
+  var height = paddedRadius * 2;
+  var foreignObject = createElement('foreignObject', [['x', paddedX], ['y', paddedY], ['width', width], ['height', height]]);
   foreignObject.appendChild(container);
   return foreignObject;
 }
 
 function getPoint(totalSize) {
-  const x = totalSize / 2;
-  const y = totalSize / 2;
+  var x = totalSize / 2;
+  var y = totalSize / 2;
   return {
-    x,
-    y
+    x: x,
+    y: y
   };
 }
 
-function getChartStyleElement({
-  showGlow
-}) {
-  let result = "";
+function getChartStyleElement(_ref) {
+  var showGlow = _ref.showGlow;
+  var result = "";
   if (showGlow) result = hoverStyles;
-  const styleElement = createElement('style', []);
+  var styleElement = createElement('style', []);
   styleElement.innerHTML = result + chartStyles;
   return styleElement;
 }
 
 function HorseShoeChartCreator(items, options) {
-  const defaultOptions = {
+  var defaultOptions = {
     radius: 100,
     showAnimation: false,
     animationDurationInSeconds: 5,
@@ -541,125 +414,125 @@ function HorseShoeChartCreator(items, options) {
     backgroundColor: 'white',
     imageUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
   };
-  const mergedOptions = { ...defaultOptions,
-    ...options
-  };
-  const formattedOptions = { ...mergedOptions,
+
+  var mergedOptions = _extends({}, defaultOptions, options);
+
+  var formattedOptions = _extends({}, mergedOptions, {
     showAnimation: String(mergedOptions.showAnimation) === 'true',
     showGlow: String(mergedOptions.showGlow) === 'true',
     radius: Number(mergedOptions.radius),
     animationDurationInSeconds: Number(mergedOptions.animationDurationInSeconds),
     labelSize: Number(mergedOptions.labelSize)
+  });
+
+  var radius = formattedOptions.radius,
+      title = formattedOptions.title,
+      showGlow = formattedOptions.showGlow,
+      thicknessSize = formattedOptions.thicknessSize,
+      showAnimation = formattedOptions.showAnimation,
+      animationDurationInSeconds = formattedOptions.animationDurationInSeconds,
+      gapSize = formattedOptions.gapSize,
+      backgroundColor = formattedOptions.backgroundColor,
+      imageUrl = formattedOptions.imageUrl,
+      titleColor = formattedOptions.titleColor,
+      labelSize = formattedOptions.labelSize,
+      labelColor = formattedOptions.labelColor;
+  var thicknessOfCircle = thicknessWithRatio[thicknessSize];
+  var totalSize = (radius + thicknessOfCircle) * 2;
+
+  var _getPoint = getPoint(totalSize),
+      x = _getPoint.x,
+      y = _getPoint.y;
+
+  var outerRadius = radius + thicknessOfCircle;
+  var sizeWithAngle = sizeWithAngles[gapSize];
+  var startAngle = sizeWithAngle[0],
+      endAngle = sizeWithAngle[1];
+  var total = (endAngle - startAngle) / 100;
+
+  var percentageToDegree = function percentageToDegree(percent) {
+    return percent * total;
   };
-  const {
-    radius,
-    title,
-    showGlow,
-    thicknessSize,
-    showAnimation,
-    animationDurationInSeconds,
-    gapSize,
-    backgroundColor,
-    imageUrl,
-    titleColor,
-    labelSize,
-    labelColor
-  } = formattedOptions;
-  const thicknessOfCircle = thicknessWithRatio[thicknessSize];
-  const totalSize = (radius + thicknessOfCircle) * 2;
-  const {
-    x,
-    y
-  } = getPoint(totalSize);
-  const outerRadius = radius + thicknessOfCircle;
-  const sizeWithAngle = sizeWithAngles[gapSize];
-  const [startAngle, endAngle] = sizeWithAngle;
-  const total = (endAngle - startAngle) / 100;
 
-  const percentageToDegree = percent => percent * total;
-
-  const container = createGroupElement();
-  const centerTitleContainer = getTitleContainer({
-    x,
-    y
+  var container = createGroupElement();
+  var centerTitleContainer = getTitleContainer({
+    x: x,
+    y: y
   }, radius, imageUrl, title, titleColor);
   container.appendChild(centerTitleContainer);
-  let currentAngle = startAngle;
-  const formattedItems = formatItems(items, labelColor);
+  var currentAngle = startAngle;
+  var formattedItems = formatItems(items, labelColor);
 
   if (showGlow) {
     console.log('showGlow');
-    const filterElement = createHoverFilter();
+    var filterElement = createHoverFilter();
     container.appendChild(filterElement);
   }
 
-  formattedItems.forEach((item, index) => {
-    const {
-      percentage,
-      id,
-      previousId
-    } = item;
-    const endAngle = currentAngle + percentageToDegree(percentage);
-    const currentBoxElement = getSliceElement({
+  formattedItems.forEach(function (item, index) {
+    var percentage = item.percentage,
+        id = item.id,
+        previousId = item.previousId;
+    var endAngle = currentAngle + percentageToDegree(percentage);
+    var currentBoxElement = getSliceElement({
       startAngle: currentAngle,
-      endAngle
+      endAngle: endAngle
     }, item, {
-      x,
-      y
+      x: x,
+      y: y
     }, {
       innerRadius: radius,
       outerRadius: outerRadius
     }, {
-      labelSize,
-      labelColor
+      labelSize: labelSize,
+      labelColor: labelColor
     }, {
-      id,
-      previousId
+      id: id,
+      previousId: previousId
     });
     container.appendChild(currentBoxElement);
     currentAngle = endAngle;
   });
 
   if (showAnimation) {
-    const borderAnimation = getBorderAnimation({
-      x,
-      y
+    var borderAnimation = getBorderAnimation({
+      x: x,
+      y: y
     }, {
       innerRadius: radius,
       outerRadius: outerRadius
     }, {
-      startAngle,
+      startAngle: startAngle,
       endAngle: currentAngle
     }, backgroundColor, animationDurationInSeconds);
     container.appendChild(borderAnimation);
-    const centerTitleAnimation = getCenterTitleAnimation({
-      x,
-      y
+    var centerTitleAnimation = getCenterTitleAnimation({
+      x: x,
+      y: y
     }, radius, backgroundColor, animationDurationInSeconds);
     container.appendChild(centerTitleAnimation);
 
-    centerTitleAnimation.querySelector('animate').onend = () => {
+    centerTitleAnimation.querySelector('animate').onend = function () {
       container.removeChild(centerTitleAnimation);
       container.removeChild(borderAnimation);
     };
   }
 
-  const root = createSVGRoot(totalSize);
-  const styleElement = getChartStyleElement({
-    showGlow
+  var root = createSVGRoot(totalSize);
+  var styleElement = getChartStyleElement({
+    showGlow: showGlow
   });
   root.appendChild(styleElement);
   root.appendChild(container);
   return root;
 }
 
-const HorseShoeChart = ({
-  items,
-  options
-}) => {
-  const svg = useRef(null);
-  useEffect(() => {
-    const result = HorseShoeChartCreator(items, options);
+var HorseShoeChart = function HorseShoeChart(_ref) {
+  var items = _ref.items,
+      options = _ref.options;
+  var svg = useRef(null);
+  useEffect(function () {
+    var result = HorseShoeChartCreator(items, options);
 
     if (svg.current) {
       if (svg.current.children.length > 0) {

@@ -4,6 +4,7 @@ import {useFormik} from "formik";
 import * as Yup from "yup";
 import { HorseShoeChart } from 'react-cropped-doughnut-chart'
 import 'react-cropped-doughnut-chart/dist/index.css'
+import AnotherApp from "./AnotherApp";
 // import { HorseShoeChart } from "../../src";
 
 
@@ -112,6 +113,7 @@ const App = () => {
     <h2>React Doughnut chart demo</h2>
       <DynamicImage/>
       <hr/>
+    {/*<AnotherApp></AnotherApp>*/}
 
   </div>
 }
